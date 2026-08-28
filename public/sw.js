@@ -1,10 +1,25 @@
-const VERSION = 'mhc-v1';
+const VERSION = 'mhc-v2';
 const SHELL_CACHE = `${VERSION}-shell`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
-const SHELL = ['/', '/index.html', '/offline.html', '/manifest.webmanifest', '/assets/icon-192.png', '/assets/icon-512.png', '/assets/hero-kitchen-table-640.webp', '/assets/hero-kitchen-table-1280.webp', '/assets/hero-kitchen-table.jpg'];
+const SHELL = ['/offline.html', '/manifest.webmanifest', '/assets/icon-192.png', '/assets/icon-512.png', '/assets/hero-kitchen-table-640.webp', '/assets/hero-kitchen-table-1280.webp', '/assets/hero-kitchen-table.jpg'];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(SHELL_CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting()));
+  event.waitUntil((async () => {
+    const cache = await caches.open(SHELL_CACHE);
+    const cacheFresh = async (path) => {
+      const item = await fetch(path, { cache: 'reload' });
+      if (!item.ok) throw new Error(`Could not precache ${path}`);
+      await cache.put(path, item);
+    };
+    await Promise.all(SHELL.map(cacheFresh));
+    const response = await fetch('/', { cache: 'reload' });
+    const html = await response.clone().text();
+    await cache.put('/', response.clone());
+    await cache.put('/index.html', response);
+    const builtAssets = [...html.matchAll(/(?:src|href)="(\/assets\/[^\"]+)"/g)].map((match) => match[1]);
+    await Promise.all(builtAssets.map(cacheFresh));
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener('activate', (event) => {
@@ -21,12 +36,21 @@ self.addEventListener('fetch', (event) => {
       const copy = response.clone();
       caches.open(RUNTIME_CACHE).then((cache) => cache.put(event.request, copy));
       return response;
-    }).catch(async () => (await caches.match(event.request)) || (await caches.match('/')) || (await caches.match('/offline.html'))));
+    }).catch(async () => {
+      const shell = await caches.open(SHELL_CACHE);
+      const runtime = await caches.open(RUNTIME_CACHE);
+      return (await runtime.match(url.pathname)) || (await shell.match('/')) || (await shell.match('/offline.html'));
+    }));
     return;
   }
 
-  event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {
-    if (response.ok) caches.open(RUNTIME_CACHE).then((cache) => cache.put(event.request, response.clone()));
+  event.respondWith((async () => {
+    const shell = await caches.open(SHELL_CACHE);
+    const runtime = await caches.open(RUNTIME_CACHE);
+    const cached = (await shell.match(url.pathname)) || (await runtime.match(event.request));
+    if (cached) return cached;
+    const response = await fetch(event.request);
+    if (response.ok) await runtime.put(event.request, response.clone());
     return response;
-  })));
+  })());
 });

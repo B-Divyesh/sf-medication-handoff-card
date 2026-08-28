@@ -292,14 +292,14 @@ function bindEvents(): void {
 
   document.querySelector<HTMLFormElement>('#profile-form')?.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    const data = new FormData(event.currentTarget as HTMLFormElement);
     state.profile = { ...state.profile, personName: String(data.get('personName')).trim(), caregiverName: String(data.get('caregiverName')).trim(), updatedAt: isoNow() };
     try { await saveProfile(state.profile); state.profileEditing = false; render(); announce('Card names saved.'); } catch (error) { state.error = error instanceof Error ? error.message : 'Could not save the names.'; render(); }
   });
 
   document.querySelector<HTMLFormElement>('#medicine-form')?.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    const data = new FormData(event.currentTarget as HTMLFormElement);
     const now = isoNow();
     const previous = state.editingMedication;
     const medication: Medication = {
@@ -315,7 +315,7 @@ function bindEvents(): void {
     event.preventDefault();
     if (!state.stoppingMedication) return;
     const medicine = state.stoppingMedication;
-    const reason = String(new FormData(event.currentTarget).get('reason')).trim();
+    const reason = String(new FormData(event.currentTarget as HTMLFormElement).get('reason')).trim();
     try {
       await addChange({ id: uid(), kind: 'stopped', medicineId: medicine.id, title: `${medicine.name} stopped`, details: reason, by: state.profile.caregiverName, at: isoNow() });
       await removeMedication(medicine.id); await refreshData(); state.openDialog = null; state.stoppingMedication = undefined; render(); announce(`${medicine.name} removed; the change is preserved.`);
@@ -324,20 +324,20 @@ function bindEvents(): void {
 
   document.querySelector<HTMLFormElement>('#confirm-form')?.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const confirmedBy = String(new FormData(event.currentTarget).get('confirmedBy')).trim();
+    const confirmedBy = String(new FormData(event.currentTarget as HTMLFormElement).get('confirmedBy')).trim();
     const now = isoNow();
     state.profile = { ...state.profile, lastConfirmed: now, confirmedBy, updatedAt: now };
     try { await saveProfile(state.profile); await addChange({ id: uid(), kind: 'confirmed', title: 'Current list confirmed', details: `${state.medications.length} ${state.medications.length === 1 ? 'medicine' : 'medicines'} checked.`, by: confirmedBy, at: now }); await refreshData(); state.openDialog = null; render(); announce('Current list confirmed and dated.'); } catch (error) { state.error = error instanceof Error ? error.message : 'Could not confirm the list.'; state.openDialog = null; render(); }
   });
 
   document.querySelector<HTMLButtonElement>('#export-json')?.addEventListener('click', () => { download(JSON.stringify(makeBackup(), null, 2), `medication-card-${new Date().toISOString().slice(0, 10)}.json`); announce('Plain backup downloaded.'); });
-  document.querySelector<HTMLInputElement>('#import-file')?.addEventListener('change', async (event) => { const file = event.currentTarget.files?.[0]; if (file) try { await importBackup(file); } catch (error) { announce(error instanceof Error ? error.message : 'Backup could not be restored.'); } });
+  document.querySelector<HTMLInputElement>('#import-file')?.addEventListener('change', async (event) => { const file = (event.currentTarget as HTMLInputElement).files?.[0]; if (file) try { await importBackup(file); } catch (error) { announce(error instanceof Error ? error.message : 'Backup could not be restored.'); } });
   document.querySelector<HTMLButtonElement>('#export-encrypted')?.addEventListener('click', async () => {
     const field = document.querySelector<HTMLInputElement>('#backup-passphrase');
     try { const contents = await encryptBackup(makeBackup(), field?.value ?? ''); download(contents, `medication-card-${new Date().toISOString().slice(0, 10)}.mhc`); if (field) field.value = ''; announce('Encrypted backup downloaded.'); } catch (error) { announce(error instanceof Error ? error.message : 'Encrypted backup could not be created.'); field?.focus(); }
   });
   document.querySelector<HTMLFormElement>('#license-form')?.addEventListener('submit', async (event) => {
-    event.preventDefault(); const token = String(new FormData(event.currentTarget).get('license')).trim(); storeLicense(token); announce('Checking license…'); const result = await verifyLicense(true); state.paid = result.valid; render(); announce(result.valid ? 'Encrypted backups unlocked.' : (result.message ?? 'That license was not valid.'));
+    event.preventDefault(); const token = String(new FormData(event.currentTarget as HTMLFormElement).get('license')).trim(); storeLicense(token); announce('Checking license…'); const result = await verifyLicense(true); state.paid = result.valid; render(); announce(result.valid ? 'Encrypted backups unlocked.' : (result.message ?? 'That license was not valid.'));
   });
 }
 
@@ -364,7 +364,13 @@ async function start(): Promise<void> {
   try {
     await refreshData(); render();
     if (returned) announce('License received. Verifying…');
-    void verifyLicense(returned).then((result) => { state.paid = result.valid; if (result.message) announce(result.message); if (returned && result.valid) announce('Encrypted backups unlocked.'); });
+    void verifyLicense(returned).then((result) => {
+      const changed = state.paid !== result.valid;
+      state.paid = result.valid;
+      if (changed) render();
+      if (result.message) announce(result.message);
+      if (returned && result.valid) announce('Encrypted backups unlocked.');
+    });
     void registerServiceWorker();
   } catch (error) {
     state.error = error instanceof Error ? error.message : 'The local record could not be opened.';

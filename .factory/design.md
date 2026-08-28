@@ -18,7 +18,7 @@ itself takes the visual lead.
 | Ink | `#203137` | Body text |
 | Paper | `#F6F0E4` | Main background, like a card on a table |
 | Linen | `#FFFDF8` | Forms and record surfaces |
-| Fog | `#657277` | Secondary text (accessible on Paper/Linen) |
+| Fog | `#58676C` | Secondary text (accessible on Paper/Linen) |
 | Coral pencil | `#B44532` | Primary actions and changed-item marks |
 | Coral dark | `#873225` | Hover/pressed actions |
 | Sage | `#426B5A` | Confirmed/saved state |
@@ -96,4 +96,3 @@ advice. App icons and interface symbols are hand-authored SVG/simple geometry.
 Generated with the factory image deployment (`/opt/fleet/lib/gen-image.sh`) on
 2026-08-28. The generated image is original to this product; the selected
 source and exact prompt are retained in `assets/src/hero-kitchen-table.json`.
-
