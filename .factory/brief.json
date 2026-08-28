@@ -1,0 +1,8 @@
+{
+  "slug": "medication-handoff-card",
+  "title": "Medication Handoff Card",
+  "artifact_class": "pwa-offline",
+  "smallest_useful_product": "Local-first medication list with dose/timing/free-text prescriber fields, change log, owner/last-confirmed line, and large-type print/PDF card.",
+  "constraints": "Prominent non-clinical disclaimer; no interaction database; local encrypted export option; account for accessibility and print legibility.",
+  "monetization": "one-time"
+}
