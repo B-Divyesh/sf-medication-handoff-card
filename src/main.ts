@@ -348,10 +348,11 @@ function updateOnlineState(): void {
 
 async function registerServiceWorker(): Promise<void> {
   if (!('serviceWorker' in navigator) || import.meta.env.DEV) return;
+  const hadController = Boolean(navigator.serviceWorker.controller);
   const registration = await navigator.serviceWorker.register('/sw.js');
   let refreshing = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!refreshing) { refreshing = true; announce('A fresh version is ready. Reload when convenient.'); }
+    if (hadController && !refreshing) { refreshing = true; announce('A fresh version is ready. Reload when convenient.'); }
   });
   if (registration.waiting) announce('An update is ready. Reload when convenient.');
 }
