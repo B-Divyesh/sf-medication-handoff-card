@@ -1,0 +1,9 @@
+{
+  "generator": "/opt/fleet/lib/gen-image.sh",
+  "deployment": "factory-image",
+  "date": "2026-08-28",
+  "size": "1536x1024",
+  "quality": "high",
+  "prompt": "Use case: stylized-concept. Asset type: responsive landing and empty-state hero for a medication handoff PWA. A quiet early-morning kitchen table prepared for a family medication handoff: a completely blank cream paper card, reading glasses, a closed weekly pill organizer, two generic unbranded amber medicine bottles, and a coral-red pencil. Worn oak, textured paper, glass, matte plastic. Cinematic blue-hour window light with one warm practical lamp, 50 mm editorial still-life lens, shallow but readable depth of field. 3:2 landscape composition, objects weighted to the right with calm clear negative space on the left, viewed slightly above table height. Deep teal shadows, parchment, quiet sage, coral pencil accent. No people, no hands, no readable writing, no labels, no logos, no brands, no watermark, no loose pills, no medical symbols, no dramatic illness, no sterile clinic, no text.",
+  "review": "Accepted: blank card, closed organizer, unbranded bottles, anatomically plausible glasses, no text artifacts, no watermark or logo."
+}
