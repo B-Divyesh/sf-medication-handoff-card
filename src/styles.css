@@ -138,6 +138,16 @@ main { width: min(1140px, calc(100% - 48px)); margin-inline: auto; }
 .masthead-action span, .demo-intro { color: var(--muted); }
 .demo-intro { margin: 24px 0 0; }
 
+.demo-sample-top { padding: clamp(24px, 4vw, 48px) 0 28px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, .9fr); align-items: end; gap: 28px 48px; border-bottom: 1px solid var(--line); }
+.demo-sample-top, .demo-sample-top * { min-width: 0; overflow-wrap: anywhere; }
+.demo-owner h1 { margin-bottom: 8px; font-size: clamp(2.25rem, 5vw, 3.5rem); }
+.demo-owner > p:last-child { margin-bottom: 0; color: var(--muted); }
+.demo-medicine { min-width: 0; padding: 18px 20px 16px 24px; display: flex; align-items: end; justify-content: space-between; gap: 16px; border-left: 4px solid var(--accent); background: var(--surface); box-shadow: 0 5px 20px rgb(23 37 43 / 7%); }
+.demo-medicine .eyebrow { margin-bottom: 3px; }
+.demo-medicine-name { margin: 0 0 2px; color: var(--strong); font-family: var(--serif); font-size: 1.55rem; font-weight: 600; line-height: 1.08; }
+.demo-medicine .dose { margin-bottom: 3px; }
+.demo-prescriber { margin: 0; color: var(--muted); font-size: .9rem; }
+
 .plain-facts { margin: 0; padding: 20px 0 20px 28px; display: grid; gap: 10px; border-left: 1px solid var(--line); color: var(--strong); font-weight: 700; }
 .plain-facts li::marker { color: var(--success); }
 
@@ -283,6 +293,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 20px; }
 
 @media (max-width: 840px) {
   .masthead { grid-template-columns: 1fr; gap: 32px; }
+  .demo-sample-top { grid-template-columns: 1fr; gap: 20px; }
   .privacy-seal { max-width: 300px; }
   .plain-facts { max-width: 380px; }
   .identity-panel { grid-template-columns: 1fr; gap: 24px; }
@@ -301,6 +312,10 @@ footer nav { display: flex; flex-wrap: wrap; gap: 20px; }
   .icon-button { width: 46px; justify-content: center; }
   main, footer { width: min(100% - 32px, 1140px); }
   .masthead { min-height: auto; padding-block: 52px 42px; }
+  .demo-sample-top { padding: 20px 0 18px; gap: 14px; }
+  .demo-owner h1 { font-size: 2.35rem; }
+  .demo-medicine { padding: 14px 16px 14px 18px; }
+  .demo-medicine-name { font-size: 1.35rem; }
   h1 { font-size: clamp(2.35rem, 12vw, 3.2rem); }
   .safety-note { padding-inline: 0; display: grid; }
   .demo-banner { padding-inline: 16px; align-items: start; flex-direction: column; }

@@ -36,6 +36,15 @@ rely on them even when they do not end in punctuation.
 | The card, print view, and plain JSON backup are free. | 10 | Pass · `core-features-free` |
 | Your health record stays in this browser during normal use. | 10 | Pass |
 | Scene generated for this product; no person or brand is depicted. | 11 | Pass |
+| Demo — sample data, nothing is saved to your real card. | 10 | Pass · `demo-isolation` |
+| Try editing Evelyn Parker’s example list. | 6 | Pass |
+| Sample medication handoff card | 4 | Pass |
+| Confirmed Aug 28, 2026 by Jordan Parker. | 7 | Sample-specific record detail |
+| Current medicine | 2 | Pass |
+| Lisinopril | 1 | Sample-specific record detail |
+| 10 mg · Each morning | 4 | Sample-specific record detail |
+| Prescriber: Dr. Nina Shah | 4 | Sample-specific record detail |
+| No medicines in this restored card | 7 | Empty restored-card state |
 
 No sentence exceeds 22 words. No copy uses a banned marketing word.
 

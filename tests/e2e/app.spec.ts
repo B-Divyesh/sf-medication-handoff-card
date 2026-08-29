@@ -153,6 +153,19 @@ test('uses plain-language titles for the home and demo routes', async ({ page })
   await expect(page).toHaveTitle('Demo — Medication Handoff Card');
 });
 
+test('opens the completed sample card above the fold after one click', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Try it with sample data' }).click();
+  await expect(page).toHaveURL('/?demo=1');
+  await expect(page.getByRole('heading', { level: 1, name: 'Evelyn Parker' })).toBeVisible();
+  await expect(page.locator('.demo-medicine-name')).toHaveText('Lisinopril');
+  await expect(page.getByText('10 mg · Each morning', { exact: true })).toBeVisible();
+  await expect(page.locator('.demo-sample-top').getByRole('button', { name: 'Edit', exact: true })).toBeVisible();
+  const box = await page.locator('.demo-medicine').boundingBox();
+  expect(box).not.toBeNull();
+  expect((box?.y ?? Infinity) + (box?.height ?? Infinity)).toBeLessThanOrEqual(await page.evaluate(() => window.innerHeight));
+});
+
 test('updates route focus, announcements, and metadata for navigation and Back', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('link', { name: 'Privacy' }).first().click();
@@ -190,6 +203,25 @@ test('loads the demo without console errors or horizontal overflow', async ({ pa
   await expect(page.getByRole('heading', { name: 'Evelyn Parker' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   expect(consoleErrors).toEqual([]);
+});
+
+test('ships a complete product shell and metadata on the designed 404', async ({ page }, testInfo) => {
+  const response = await page.goto('/404.html');
+  expect(response?.ok()).toBe(true);
+  await expect(page).toHaveTitle('Page not found — Medication Handoff Card');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://medication-handoff-card.sociobot.in/404');
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /does not exist/);
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Page not found — Medication Handoff Card');
+  await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', 'Page not found — Medication Handoff Card');
+  await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', '/favicon.svg');
+  await expect(page.getByRole('banner').getByRole('link', { name: 'Medication Handoff Card home' })).toBeVisible();
+  await expect(page.getByRole('main').getByRole('heading', { level: 1, name: 'That page is not here.' })).toBeVisible();
+  await expect(page.getByRole('contentinfo').getByRole('link', { name: 'Privacy' })).toBeVisible();
+  await expect(page.getByRole('contentinfo').getByRole('link', { name: 'Terms' })).toBeVisible();
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? '')),
+    `404 accessibility violations in ${testInfo.project.name}`).toEqual([]);
 });
 
 test('degrades without errors when service workers are blocked', async ({ browser }) => {

@@ -102,7 +102,7 @@ function legalPage(kind: 'privacy' | 'terms'): string {
 }
 
 function footer(): string {
-  return `<footer><p>Your health record stays in this browser during normal use.</p><nav aria-label="Legal"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="https://github.com/B-Divyesh/sf-medication-handoff-card" rel="noreferrer">Source<span class="sr-only"> (external)</span></a></nav><p class="generation-note">Scene generated for this product; no person or brand is depicted. Built by Param Factory · v1.0.2</p></footer>`;
+  return `<footer><p>Your health record stays in this browser during normal use.</p><nav aria-label="Legal"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="https://github.com/B-Divyesh/sf-medication-handoff-card" rel="noreferrer">Source<span class="sr-only"> (external)</span></a></nav><p class="generation-note">Scene generated for this product; no person or brand is depicted. Built by Param Factory · v1.0.3</p></footer>`;
 }
 
 function profileSection(): string {
@@ -200,14 +200,29 @@ function printSheet(): string {
     <footer><p><b>Check before use:</b> This is a communication record, not medical advice. It does not check interactions or whether a medicine or dose is right. Confirm changes with a qualified clinician or pharmacist.</p></footer></section>`;
 }
 
+function demoSampleTop(): string {
+  const lisinopril = state.medications.find((medication) => medication.id === 'sample-lisinopril') ?? state.medications[0];
+  return `<section class="demo-sample-top" aria-labelledby="demo-owner-heading">
+    <div class="demo-owner">
+      <p class="eyebrow">Sample medication handoff card</p>
+      <h1 id="demo-owner-heading" tabindex="-1">${escaped(state.profile.personName || 'Evelyn Parker')}</h1>
+      <p>Confirmed ${displayDate(state.profile.lastConfirmed)} by ${escaped(state.profile.confirmedBy || 'Jordan Parker')}.</p>
+    </div>
+    ${lisinopril ? `<article class="demo-medicine" aria-labelledby="demo-lisinopril-heading">
+      <div><p class="eyebrow">Current medicine</p><p id="demo-lisinopril-heading" class="demo-medicine-name">${escaped(lisinopril.name)}</p><p class="dose">${escaped(lisinopril.dose)} · ${escaped(lisinopril.timing)}</p><p class="demo-prescriber">Prescriber: ${escaped(lisinopril.prescriber || 'Not recorded')}</p></div>
+      <button class="button quiet small" type="button" data-edit-medication="${escaped(lisinopril.id)}" aria-describedby="demo-lisinopril-heading">${icon('edit')} Edit</button>
+    </article>` : `<div class="demo-medicine"><div><p class="eyebrow">Current medicine</p><p class="demo-medicine-name">No medicines in this restored card</p></div></div>`}
+  </section>`;
+}
+
 function appPage(): string {
   return `<header class="site-header"><a class="brand" href="/" aria-label="Medication Handoff Card home"><span class="brand-mark" aria-hidden="true">M</span><span>Medication Handoff Card</span></a><nav class="site-nav" aria-label="Main navigation"><a href="/demo">Try demo</a><a href="/privacy">Privacy</a></nav><div class="header-actions"><button class="icon-button" type="button" id="print-button" ${!state.profile.personName ? 'disabled' : ''}>${icon('print')}<span>Print / PDF</span></button><button class="icon-button" type="button" data-open-settings>${icon('settings')}<span>Backup & settings</span></button></div></header>
     <div id="offline-banner" class="offline-banner" hidden><strong>Offline:</strong> your card still works and saves on this device.</div>
     ${state.demo ? `<aside class="demo-banner" aria-label="Demo mode"><span><strong>Demo — sample data, nothing is saved to your real card.</strong> Try editing Evelyn Parker’s example list.</span><span class="demo-actions"><button class="text-button" type="button" id="reset-demo">Reset demo</button><a class="text-button" href="/" data-start-real>Start for real</a></span></aside>` : ''}
     <main id="main-content">
-      <section class="masthead"><div><p class="eyebrow">A dated list for the next handoff</p><h1 tabindex="-1">Make a clear medication handoff card.</h1><p class="lede">For adult children, caregivers, and older adults sharing a checked list with family or clinicians.</p>${state.demo ? '<p class="demo-intro">This sample is separate from your own card. Reset it any time.</p>' : '<p class="masthead-action"><a class="button primary" href="/?demo=1">Try it with sample data</a><span>See a completed card for Evelyn Parker.</span></p>'}</div><ul class="plain-facts" aria-label="Product facts"><li>Records stay in this browser.</li><li>Works offline after the first visit.</li><li>Card, print, and JSON backup are free; encrypted backups cost $12 once.</li></ul></section>
+      ${state.demo ? demoSampleTop() : `<section class="masthead"><div><p class="eyebrow">A dated list for the next handoff</p><h1 tabindex="-1">Make a clear medication handoff card.</h1><p class="lede">For adult children, caregivers, and older adults sharing a checked list with family or clinicians.</p><p class="masthead-action"><a class="button primary" href="/?demo=1">Try it with sample data</a><span>See a completed card for Evelyn Parker.</span></p></div><ul class="plain-facts" aria-label="Product facts"><li>Records stay in this browser.</li><li>Works offline after the first visit.</li><li>Card, print, and JSON backup are free; encrypted backups cost $12 once.</li></ul></section>`}
       <aside class="safety-note" aria-label="Important safety information"><strong>Communication tool, not medical advice.</strong><span>No interaction checks or dose recommendations. Confirm every change with a qualified clinician or pharmacist.</span></aside>
-      ${profileSection()}
+      ${state.demo ? '' : profileSection()}
       ${state.error ? `<div class="error-banner" role="alert"><strong>Something went wrong.</strong> ${escaped(state.error)} <button class="text-button" type="button" id="reload-button">Reload</button><button class="text-button" type="button" id="reset-record">Reset this device’s card</button></div>` : ''}
       <div class="workspace">
         <section class="current-list" aria-labelledby="current-heading"><div class="section-heading"><div><p class="eyebrow">Current list · ${state.medications.length}</p><h2 id="current-heading">Medicines being taken</h2></div>${state.medications.length ? `<button class="button primary" type="button" data-add-medication>${icon('plus')} Add medicine</button>` : ''}</div>${medicationList()}${state.medications.length ? `<div class="confirm-bar"><div><strong>Checked every line?</strong><span>Date the list before sharing it.</span></div><button class="button success" type="button" data-confirm-list>${icon('check')} Confirm current list</button></div>` : ''}</section>

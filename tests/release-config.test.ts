@@ -28,7 +28,14 @@ describe('static deployment regressions', () => {
     expect(config.navigationFallback).toBeUndefined();
     expect(config.mimeTypes['.webmanifest']).toBe('application/manifest+json');
     expect(config.responseOverrides['404']?.rewrite).toBe('/404.html');
-    await expect(readFile(projectFile('public/404.html'), 'utf8')).resolves.toContain('That page is not here.');
+    const notFound = await readFile(projectFile('public/404.html'), 'utf8');
+    expect(notFound).toContain('That page is not here.');
+    expect(notFound).toContain('rel="canonical" href="https://medication-handoff-card.sociobot.in/404"');
+    expect(notFound).toContain('property="og:title" content="Page not found — Medication Handoff Card"');
+    expect(notFound).toContain('href="/favicon.svg"');
+    expect(notFound).toContain('<header class="site-header">');
+    expect(notFound).toContain('href="/privacy"');
+    expect(notFound).toContain('href="/terms"');
   });
 
   it('ships dedicated social and app identity assets with exact dimensions', async () => {
@@ -42,7 +49,7 @@ describe('static deployment regressions', () => {
   });
 
   it('versions the app shell for this repair so installed cards receive the update', async () => {
-    await expect(readFile(projectFile('public/sw.js'), 'utf8')).resolves.toContain("const VERSION = 'mhc-v6'");
-    await expect(readFile(projectFile('public/manifest.webmanifest'), 'utf8')).resolves.toContain('"start_url": "/?v=5"');
+    await expect(readFile(projectFile('public/sw.js'), 'utf8')).resolves.toContain("const VERSION = 'mhc-v7'");
+    await expect(readFile(projectFile('public/manifest.webmanifest'), 'utf8')).resolves.toContain('"start_url": "/?v=6"');
   });
 });

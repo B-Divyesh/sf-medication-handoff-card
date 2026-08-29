@@ -1,4 +1,4 @@
-const VERSION = 'mhc-v6';
+const VERSION = 'mhc-v7';
 const SHELL_CACHE = `${VERSION}-shell`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 const SHELL = ['/offline.html', '/offline.css', '/manifest.webmanifest', '/favicon.svg', '/assets/icon-192.png', '/assets/icon-512.png', '/assets/hero-kitchen-table-640.webp', '/assets/hero-kitchen-table-1280.webp', '/assets/hero-kitchen-table.jpg'];
