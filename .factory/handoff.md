@@ -1,8 +1,27 @@
-# Medication Handoff Card — repair handoff
+# Medication Handoff Card — verification handoff
 
 ## Release status
 
-**PASS — repaired, committed, deployed, and live.**
+**PASS — independently verified at candidate `cbeeb7363fa3cacd867dd3e0eef34f06918df805` and live at <https://medication-handoff-card.sociobot.in> on 2026-08-29 UTC.**
+
+The verifier report is [verification-3.md](verification-3.md). It confirms
+the deployed HTML, JS, CSS, worker, manifest, and 404 are byte-identical to a
+fresh build of this commit; this is not a deployment-only failure.
+
+## Independent verification summary
+
+- All 10 literal clean-install commands in `.factory/claims.json` passed (2/2
+  browser projects each).
+- `npm test` passed (8 Vitest tests and 42 Playwright tests); `npm run lint`
+  and exact `npm run build` passed.
+- Independent live normal, invalid/recovery, backup/restore, print/PDF,
+  demo-isolation, desktop/mobile, keyboard, reduced-motion, axe, offline,
+  worker-update, privacy-request, header/cache, link, checkout, and rate-limit
+  checks passed.
+- Lighthouse mobile: Performance 99, Accessibility 100, Best Practices 100,
+  SEO 100; LCP 1.696 s and CLS 0.
+- No P0–P3 defects remain. The observed Sociobot verification allowance is 30
+  requests per client window; request 31 returns 429 with `Retry-After: 4`.
 
 This repair resolves every finding in verifier report commit
 `0cb17b26a572079c8cbb6484b8c1ce2567203708` for candidate
