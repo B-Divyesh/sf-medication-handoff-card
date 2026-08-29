@@ -1,54 +1,58 @@
-# Medication Handoff Card — review-2 handoff
+# Medication Handoff Card — polish-2 handoff
 
 ## Release status
 
-**FAIL — adversarial review 2, 2026-08-29 UTC.**
+**PASS — deployed 2026-08-29 UTC.**
 
-The reviewed candidate is `1668a00fcbf2b87e86d2e37f0f0680d9de119c64`
-at <https://medication-handoff-card.sociobot.in>. No product code was changed
-in this review; `.factory/review-2.md` records the evidence.
+Repair commit: `2cc86b9` (`fix: show demo card above fold and complete 404`).
+The deployed artifact is `dist/`, served at
+<https://medication-handoff-card.sociobot.in>. It uses service-worker cache
+`mhc-v7` and manifest start URL `/?v=6` so installed cards receive the repair.
 
-Live identity was verified: the live
-`index-eTnJiOPs.js` SHA-256 is
-`2412c9e1ef12c2f304cc9f145aad55985eb1c246d673e8f42c4a9e1fe5c31670`,
-matching `dist/`; the live service worker is `mhc-v6` and the manifest starts
-at `/?v=5`.
+## What changed
 
-## What was verified
+- `/demo` and `?demo=1` now enter directly into Evelyn Parker’s compact,
+  editable sample card. Lisinopril, 10 mg, timing, prescriber, Edit, the demo
+  banner, Reset demo, and Start for real are visible on the first 390 × 844
+  screen. Demo storage remains `demo:medication-handoff-card`.
+- The static 404 now has its own metadata/social identity, favicon, skip link,
+  product header, and legal footer while retaining a real HTTP 404 response.
+- Added browser regressions for the above-the-fold demo and full 404 shell;
+  updated PWA cache/manifest versions and the catalog sentence.
 
-- Fresh live 390 × 844 and 1440 × 1000 first reads clearly stated the job,
-  intended people, and initial action.
-- Demo data, Reset demo, Start for real, namespace isolation, and same-origin
-  request behaviour were checked live. Reset restores the original Lisinopril
-  note and Start for real opens an empty real card.
-- All 15 `claims.json` commands passed from their own clean dependency install.
-- `CI=1 npm test` and `npm run build` passed. The build produces `dist/`.
-- Live routes, metadata, focus/route announcements, headers, internal/external
-  links, designed 404 response, visual identity, and earlier review findings
-  were rechecked.
+## Exact verification
 
-## Known gaps / required next steps
+- `CI=1 npm test` passed: 10 Vitest and 64 Playwright checks.
+- `npm run build` passed and wrote `dist/index.html`; JS 14.26 kB gzip, CSS
+  5.28 kB gzip.
+- All 15 `claims.json` commands passed from separate clean clones. The clones
+  are retained at `/tmp/mhc-claims-3oY4Ib` and every recorded last-run status
+  is `passed`.
+- Live `verify-url.sh` passed for Home and `?demo=1`, with zero console errors.
+- Live Playwright axe scan found no violations on Home, Demo, or 404.
+- Lighthouse mobile demo measured Performance 100, Accessibility 100, LCP
+  1133.65 ms, and CLS 0.
+- Static deployment completed via work-order resource
+  `sf-medication-handoff-card` / `sociobot`; a cold live check verified the new
+  asset `index-Cgku02pB.js`, demo first viewport, metadata/focus/Back behavior,
+  and HTTP 404 shell.
 
-Two findings remain and prevent release acceptance:
+Evidence and the finding-by-finding closure table are in
+[polish-2.md](polish-2.md). Live machine-readable evidence is under
+`/.factory/evidence/polish-2-live/`.
 
-1. **F-2-1 (BLOCKING):** `/demo` loads the sample but does not show its owner
-   or any medicine above the fold. At 390 × 844, owner content begins at
-   y=1,146 and Lisinopril at y=1,573. Replace the repeated demo masthead with
-   a compact demo top section that shows the editable sample card immediately;
-   add viewport assertions.
-2. **F-2-2 (P2):** `public/404.html` has no description/canonical/OG/Twitter
-   or favicon metadata and omits the consistent header/footer with Privacy and
-   Terms. Add the route skeleton and a 404 browser test.
-
-See [review-2.md](review-2.md) for complete evidence, copy audit, claims
-table, prior-finding regression matrix, and exact fixes.
-
-## How to run and verify
+## Run locally
 
 ```sh
+npm ci
 CI=1 npm test
 npm run build
 ```
 
-Open `/demo` for the isolated sample card. The complete claim contract and its
-exact commands are in `.factory/claims.json`.
+Open `/?demo=1` or `/demo` for isolated sample data. `Reset demo` restores the
+sample; `Start for real` discards it and opens a separate real card. See
+`.factory/claims.json` for every exact claim command.
+
+## Known gaps
+
+None.

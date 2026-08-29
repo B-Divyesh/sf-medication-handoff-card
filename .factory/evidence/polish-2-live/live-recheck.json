@@ -1,0 +1,45 @@
+{
+  "base": "https://medication-handoff-card.sociobot.in",
+  "checkedAt": "2026-08-29T23:39:56.854Z",
+  "consoleErrors": [],
+  "checks": {
+    "demo": {
+      "status": 200,
+      "url": "https://medication-handoff-card.sociobot.in/?demo=1",
+      "title": "Demo — Medication Handoff Card",
+      "banner": 1,
+      "reset": 1,
+      "startReal": 1,
+      "medicineText": "CURRENT MEDICINE\n\nLisinopril\n\n10 mg · Each morning\n\nPrescriber: Dr. Nina Shah\n\nEdit",
+      "withinViewport": true
+    },
+    "home": {
+      "status": 200,
+      "title": "Medication Handoff Card — share a clear medicine list",
+      "h1": 1,
+      "main": 1
+    },
+    "privacy": {
+      "url": "https://medication-handoff-card.sociobot.in/privacy",
+      "title": "Privacy — Medication Handoff Card",
+      "canonical": "https://medication-handoff-card.sociobot.in/privacy",
+      "focus": "Privacy",
+      "announcement": "Privacy page"
+    },
+    "back": {
+      "title": "Medication Handoff Card — share a clear medicine list",
+      "focus": "Make a clear medication handoff card.",
+      "announcement": "Medication handoff card"
+    },
+    "notFound": {
+      "status": 404,
+      "title": "Page not found — Medication Handoff Card",
+      "canonical": "https://medication-handoff-card.sociobot.in/404",
+      "description": "This Medication Handoff Card address does not exist. Return home to open your card or try the sample.",
+      "favicon": "/favicon.svg",
+      "header": 1,
+      "privacy": 1,
+      "terms": 1
+    }
+  }
+}
