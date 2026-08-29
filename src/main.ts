@@ -3,6 +3,7 @@ import { addChange, clearAll, getChanges, getMedications, getProfile, removeMedi
 import { decryptBackup, encryptBackup } from './crypto';
 import { blankProfile, type BackupData, type ChangeEntry, type Medication, type Profile } from './types';
 import { cachedUnlock, captureReturnedLicense, checkoutUrl, storeLicense, verifyLicense } from './license';
+import { isChangeEntry, isMedication, isProfile, requireBackupData } from './validation';
 
 type DialogName = 'medicine' | 'stop' | 'confirm' | 'settings' | null;
 
@@ -99,7 +100,7 @@ function legalPage(kind: 'privacy' | 'terms'): string {
 }
 
 function footer(): string {
-  return `<footer><p>Your health record stays in this browser during normal use.</p><nav aria-label="Legal"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="https://github.com/B-Divyesh/sf-medication-handoff-card" rel="noreferrer">Source</a></nav><p class="generation-note">Scene generated for this product; no person or brand is depicted. Built by Param Factory · v1.0.1</p></footer>`;
+  return `<footer><p>Your health record stays in this browser during normal use.</p><nav aria-label="Legal"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="https://github.com/B-Divyesh/sf-medication-handoff-card" rel="noreferrer">Source<span class="sr-only"> (external)</span></a></nav><p class="generation-note">Scene generated for this product; no person or brand is depicted. Built by Param Factory · v1.0.2</p></footer>`;
 }
 
 function profileSection(): string {
@@ -128,7 +129,7 @@ function medicationList(): string {
         <source srcset="/assets/hero-kitchen-table-640.webp 640w, /assets/hero-kitchen-table-1280.webp 1280w" sizes="(max-width: 840px) calc(100vw - 32px), 760px" type="image/webp">
         <img src="/assets/hero-kitchen-table.jpg" width="1280" height="853" alt="A blank card, glasses, pill organizer, and unbranded medicine bottles arranged on a quiet kitchen table" fetchpriority="high" decoding="async">
       </picture>
-      <div class="empty-copy"><p class="eyebrow">A clear handoff starts here</p><h3>No medicines on this card yet</h3><p>Add exactly what is written on the label. This tool records what you enter; it does not check whether a medicine or dose is right.</p><button class="button primary" type="button" data-add-medication>${icon('plus')} Add first medicine</button></div>
+      <div class="empty-copy"><p class="eyebrow">Start with the current list</p><h3>No medicines on this card yet</h3><p>Add exactly what is written on the label. This tool records what you enter; it does not check whether a medicine or dose is right.</p><button class="button primary" type="button" data-add-medication>${icon('plus')} Add first medicine</button></div>
     </div>`;
   }
   return `<ol class="medication-list">${state.medications.map((medication) => `<li class="medication-row" data-medication-id="${medication.id}">
@@ -179,7 +180,7 @@ function confirmDialog(): string {
 function settingsDialog(): string {
   return `<dialog id="settings-dialog" class="wide-dialog" aria-labelledby="settings-title"><div class="dialog-form">
     <div class="dialog-heading"><p class="eyebrow">Your data, your copy</p><h2 id="settings-title">Backup & settings</h2><p>Backups include the card owner, current medicines, and full change history.</p></div>
-    <section class="settings-section" aria-labelledby="plain-backup"><h3 id="plain-backup">Free backup</h3><p>Plain JSON is readable and portable. Store it somewhere private.</p><div class="inline-actions"><button class="button secondary" type="button" id="export-json">${icon('download')} Download JSON</button><label class="button quiet file-button">Restore a backup<input id="import-file" type="file" accept=".json,.mhc,application/json"></label></div></section>
+    <section class="settings-section" aria-labelledby="plain-backup"><h3 id="plain-backup">Free backup</h3><p id="restore-help">Plain JSON is readable and portable. Choose only a Medication Handoff Card .json or .mhc backup.</p><div class="inline-actions"><button class="button secondary" type="button" id="export-json">${icon('download')} Download JSON</button><label class="button quiet file-button">Restore a backup<input id="import-file" type="file" accept=".json,.mhc,application/json" aria-describedby="restore-help"></label></div></section>
     <section class="settings-section paid-section" aria-labelledby="secure-backup"><div class="paid-heading"><div><p class="eyebrow">One-time unlock · $12</p><h3 id="secure-backup">Encrypted backup</h3></div><span class="status-chip ${state.paid ? 'unlocked' : ''}">${state.paid ? 'Unlocked' : `${icon('lock')} Locked`}</span></div><p>Protect a backup with a passphrase. Core records, printing, and plain backup stay free.</p>
       ${state.paid ? `<label><span>Backup passphrase</span><input id="backup-passphrase" type="password" minlength="10" autocomplete="new-password" placeholder="At least 10 characters"><small>We cannot recover this passphrase.</small></label><button class="button primary" type="button" id="export-encrypted">${icon('lock')} Download encrypted backup</button>` : `<a class="button primary" href="${checkoutUrl}">Unlock encrypted backups — $12</a><form id="license-form" class="license-form"><label><span>Already purchased? Paste your license</span><input name="license" required autocomplete="off" spellcheck="false"></label><button class="button secondary" type="submit">Verify license</button></form>`}
       <p class="fine-print">One-time purchase. Sociobot/Dodo is the merchant of record and handles refunds. <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></p>
@@ -202,14 +203,15 @@ function appPage(): string {
     <div id="offline-banner" class="offline-banner" hidden><strong>Offline:</strong> your card still works and saves on this device.</div>
     ${state.demo ? `<aside class="demo-banner" aria-label="Demo mode"><span><strong>Demo — sample data, nothing is saved to your real card.</strong> Try editing Evelyn Parker’s example list.</span><span class="demo-actions"><button class="text-button" type="button" id="reset-demo">Reset demo</button><a class="text-button" href="/" id="start-real">Start for real</a></span></aside>` : ''}
     <main id="main-content">
-      <section class="masthead"><div><p class="eyebrow">A dated list for the next handoff</p><h1>Make a clear medication handoff card.</h1><p class="lede">For adult children, caregivers, and older adults sharing a checked list with family or clinicians.</p>${state.demo ? '<p class="demo-intro">This sample is separate from your own card. Reset it any time.</p>' : '<p class="masthead-action"><a class="button primary" href="/demo">Try it with sample data</a><span>See a completed card for Evelyn Parker.</span></p>'}</div><div class="privacy-seal"><span aria-hidden="true">●</span><strong>Stays in this browser</strong><small>Works offline after the first visit.</small></div></section>
+      <section class="masthead"><div><p class="eyebrow">A dated list for the next handoff</p><h1>Make a clear medication handoff card.</h1><p class="lede">For adult children, caregivers, and older adults sharing a checked list with family or clinicians.</p>${state.demo ? '<p class="demo-intro">This sample is separate from your own card. Reset it any time.</p>' : '<p class="masthead-action"><a class="button primary" href="/demo">Try it with sample data</a><span>See a completed card for Evelyn Parker.</span></p>'}</div><ul class="plain-facts" aria-label="Product facts"><li>Records stay in this browser.</li><li>Works offline after the first visit.</li><li>Core card free; encrypted backups cost $12 once.</li></ul></section>
       <aside class="safety-note" aria-label="Important safety information"><strong>Communication tool, not medical advice.</strong><span>No interaction checks or dose recommendations. Confirm every change with a qualified clinician or pharmacist.</span></aside>
       ${profileSection()}
-      ${state.error ? `<div class="error-banner" role="alert"><strong>Something went wrong.</strong> ${escaped(state.error)} <button class="text-button" type="button" id="reload-button">Reload</button></div>` : ''}
+      ${state.error ? `<div class="error-banner" role="alert"><strong>Something went wrong.</strong> ${escaped(state.error)} <button class="text-button" type="button" id="reload-button">Reload</button><button class="text-button" type="button" id="reset-record">Reset this device’s card</button></div>` : ''}
       <div class="workspace">
         <section class="current-list" aria-labelledby="current-heading"><div class="section-heading"><div><p class="eyebrow">Current list · ${state.medications.length}</p><h2 id="current-heading">Medicines being taken</h2></div>${state.medications.length ? `<button class="button primary" type="button" data-add-medication>${icon('plus')} Add medicine</button>` : ''}</div>${medicationList()}${state.medications.length ? `<div class="confirm-bar"><div><strong>Checked every line?</strong><span>Date the list before sharing it.</span></div><button class="button success" type="button" data-confirm-list>${icon('check')} Confirm current list</button></div>` : ''}</section>
         <aside class="history" aria-labelledby="history-heading"><div class="section-heading"><div><p class="eyebrow">Accountability</p><h2 id="history-heading">What changed</h2></div></div>${changeLog()}</aside>
       </div>
+      ${state.demo ? '' : `<section class="how-it-works" aria-labelledby="how-heading"><p class="eyebrow">Three steps</p><h2 id="how-heading">How it works</h2><ol><li><strong>Record the list.</strong><span>Copy each medicine, dose, timing, and prescriber from a trusted source.</span></li><li><strong>Check the handoff.</strong><span>Confirm the current list and keep dated changes.</span></li><li><strong>Share a copy.</strong><span>Print one page or download a JSON backup.</span></li></ol></section><section class="privacy-explainer" aria-labelledby="privacy-heading"><p class="eyebrow">Private by default</p><h2 id="privacy-heading">Your record stays on this device</h2><p>There is no health-data account or cloud copy. You choose when to print or download a backup.</p><p><a href="/privacy">Read the privacy details</a></p></section><section class="landing-paid" aria-labelledby="paid-heading"><div><p class="eyebrow">Optional · $12 once</p><h2 id="paid-heading">Protect backups with a passphrase</h2><p>Encrypted backups are the only paid feature. The card, print view, and plain JSON backup stay free.</p></div><a class="button primary" href="${checkoutUrl}">Buy encrypted backups — $12</a></section>`}
     </main>${footer()}${medicineDialog()}${stopDialog()}${confirmDialog()}${settingsDialog()}${printSheet()}
     <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true" ${state.notice ? '' : 'hidden'}>${escaped(state.notice)}</div>`;
 }
@@ -282,7 +284,11 @@ function closeDialog(): void {
 }
 
 async function refreshData(): Promise<void> {
-  [state.profile, state.medications, state.changes] = await Promise.all([getProfile(), getMedications(), getChanges()]);
+  const [profile, medications, changes] = await Promise.all([getProfile(), getMedications(), getChanges()]);
+  if (!isProfile(profile) || !medications.every(isMedication) || !changes.every(isChangeEntry)) {
+    throw new Error('Saved data on this device is incomplete. Restore a valid backup or reset this device’s card.');
+  }
+  [state.profile, state.medications, state.changes] = [profile, medications, changes];
 }
 
 function makeBackup(): BackupData {
@@ -296,26 +302,26 @@ function download(contents: string, filename: string, type = 'application/json')
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-function validBackup(value: unknown): value is BackupData {
-  if (!value || typeof value !== 'object') return false;
-  const data = value as Partial<BackupData>;
-  return data.format === 'medication-handoff-card' && data.version === 1 && !!data.profile && Array.isArray(data.medications) && Array.isArray(data.changes);
-}
-
 async function importBackup(file: File): Promise<void> {
+  if (file.size > 5_000_000) throw new Error('This backup is over 5 MB. Choose a smaller Medication Handoff Card .json or .mhc file.');
   const contents = await file.text();
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(contents);
+  } catch {
+    throw new Error('This file is not readable JSON. Choose a Medication Handoff Card .json or .mhc backup.');
+  }
   let data: BackupData;
   try {
-    const parsed = JSON.parse(contents) as { format?: string };
-    if (parsed.format === 'medication-handoff-card-encrypted') {
+    if (typeof parsed === 'object' && parsed !== null && 'format' in parsed && parsed.format === 'medication-handoff-card-encrypted') {
       const passphrase = prompt('Enter the passphrase for this encrypted backup:');
       if (!passphrase) return;
       data = await decryptBackup(contents, passphrase);
-    } else data = parsed as BackupData;
+    } else data = requireBackupData(parsed);
   } catch (error) {
     throw error instanceof Error ? error : new Error('This backup could not be read.');
   }
-  if (!validBackup(data)) throw new Error('This file is not a valid Medication Handoff Card backup.');
+  data = requireBackupData(data);
   if (!confirm(`Replace this device’s record with the backup for ${data.profile.personName || 'an unnamed person'}? This cannot be undone.`)) return;
   await replaceAll(data);
   await refreshData();
@@ -326,6 +332,14 @@ async function importBackup(file: File): Promise<void> {
 function bindEvents(): void {
   document.querySelectorAll<HTMLButtonElement>('#theme-toggle, #theme-toggle-settings').forEach((button) => button.addEventListener('click', toggleTheme));
   document.querySelector<HTMLButtonElement>('#reload-button')?.addEventListener('click', () => location.reload());
+  document.querySelector<HTMLButtonElement>('#reset-record')?.addEventListener('click', async () => {
+    if (!confirm('Delete the unreadable card stored on this device and start an empty card?')) return;
+    try {
+      await clearAll();
+      state.profile = blankProfile(); state.medications = []; state.changes = []; state.error = '';
+      render(); announce('This device’s card was reset.');
+    } catch { announce('The saved card could not be reset. Clear this site’s storage in your browser.'); }
+  });
   document.querySelector<HTMLButtonElement>('#print-button')?.addEventListener('click', () => window.print());
   document.querySelectorAll<HTMLElement>('[data-open-settings]').forEach((button) => button.addEventListener('click', () => openDialog('settings', '[data-open-settings]')));
   document.querySelectorAll<HTMLElement>('[data-add-medication]').forEach((button) => button.addEventListener('click', () => { state.editingMedication = undefined; openDialog('medicine', '[data-add-medication]'); }));
@@ -341,6 +355,11 @@ function bindEvents(): void {
     await refreshData();
     render();
     announce('Demo reset to the sample card.');
+  });
+  document.querySelector<HTMLAnchorElement>('#start-real')?.addEventListener('click', async (event) => {
+    event.preventDefault();
+    await clearAll();
+    location.assign('/');
   });
 
   document.querySelector<HTMLFormElement>('#profile-form')?.addEventListener('submit', async (event) => {
@@ -403,6 +422,7 @@ async function registerServiceWorker(): Promise<void> {
   if (!('serviceWorker' in navigator) || import.meta.env.DEV) return;
   const hadController = Boolean(navigator.serviceWorker.controller);
   const registration = await navigator.serviceWorker.register('/sw.js');
+  if (!registration) return;
   let refreshing = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (hadController && !refreshing) { refreshing = true; announce('A fresh version is ready. Reload when convenient.'); }
@@ -432,7 +452,7 @@ async function start(): Promise<void> {
       if (result.message) announce(result.message);
       if (returned && result.valid) announce('Encrypted backups unlocked.');
     });
-    void registerServiceWorker();
+    void registerServiceWorker().catch(() => undefined);
   } catch (error) {
     state.error = error instanceof Error ? error.message : 'The local record could not be opened.';
     render();

@@ -96,3 +96,7 @@ advice. App icons and interface symbols are hand-authored SVG/simple geometry.
 Generated with the factory image deployment (`/opt/fleet/lib/gen-image.sh`) on
 2026-08-28. The generated image is original to this product; the selected
 source and exact prompt are retained in `assets/src/hero-kitchen-table.json`.
+
+The 1200 × 630 social preview is a center crop of that original scene. The SVG
+favicon and PNG app/touch icons derive from the hand-authored card-and-check
+mark in `assets/src/app-icon.svg`; no third-party artwork is used.

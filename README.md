@@ -22,8 +22,8 @@ pharmacist.
 - Works after the network disappears via a versioned service-worker cache.
 - Offers an optional $12 one-time license for passphrase-protected backups. The
   core record, print flow, and plain export stay free.
-- Includes light/dark themes, reduced-motion behavior, keyboard-ready native
-  dialogs, and responsive layouts down to 390 px and below.
+- Includes light and dark themes, reduced-motion behavior, keyboard-ready
+  native dialogs, and a responsive 390 px phone layout.
 
 ## Try the sample card
 
@@ -31,6 +31,7 @@ Open [the demo](https://medication-handoff-card.sociobot.in/demo) for Evelyn
 Parker's three-medicine card. Demo data uses a separate local database named
 `demo:medication-handoff-card`. The persistent demo banner can reset it or
 start a separate real card without copying the sample.
+Leaving the demo discards any sample edits.
 
 ## Local development
 
@@ -57,10 +58,11 @@ npm run preview   # inspect the built PWA locally
 ```
 
 Each public product claim has a tagged regression test declared in
-`.factory/claims.json`. For example:
+`.factory/claims.json`. Every exact command includes its own clean dependency
+install, so it also runs from a fresh clone. For example:
 
 ```sh
-npm run test:e2e -- --grep @claim:offline-reload
+npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:offline-reload
 ```
 
 The static deploy artifact is `dist/`, with `dist/index.html` at its root. No
@@ -74,10 +76,10 @@ Medication data stays in the browser unless the user downloads a backup. Plain
 `.json` backups are readable. Paid `.mhc` backups use a passphrase that is
 never stored and cannot be recovered.
 
-The paid flow uses only the Sociobot billing API. The checkout link is derived
-from the product slug, and returned licenses are stored as
-`sb_license:medication-handoff-card`. The factory must register the product in
-the billing engine before launch; there is no hard-coded billing product ID.
+The paid flow uses only the Sociobot billing API. The live product is registered
+at $12. The checkout link is derived from the product slug, and returned
+licenses are stored as `sb_license:medication-handoff-card`. There is no
+hard-coded payment-provider product ID in the app.
 
 ## Project map
 

@@ -1,5 +1,8 @@
 # Landing-page copy audit
 
+Audited 2026-08-29. Labels and sentence fragments are included because users
+rely on them even when they do not end in punctuation.
+
 | Copy | Words | Result |
 | --- | ---: | --- |
 | A dated list for the next handoff | 7 | Pass |
@@ -7,13 +10,33 @@
 | For adult children, caregivers, and older adults sharing a checked list with family or clinicians. | 14 | Pass |
 | Try it with sample data | 5 | Pass |
 | See a completed card for Evelyn Parker. | 7 | Pass |
-| Stays in this browser | 5 | Pass |
+| Records stay in this browser. | 5 | Pass |
 | Works offline after the first visit. | 7 | Pass |
+| Core card free; encrypted backups cost $12 once. | 8 | Pass |
 | Communication tool, not medical advice. | 5 | Pass |
 | No interaction checks or dose recommendations. | 6 | Pass |
 | Confirm every change with a qualified clinician or pharmacist. | 9 | Pass |
+| Whose medicines are these? | 4 | Pass |
+| You, a relative, or the card owner | 7 | Pass |
+| Start with the current list | 5 | Pass |
+| No medicines on this card yet | 6 | Pass |
+| Add exactly what is written on the label. | 8 | Pass |
+| This tool records what you enter; it does not check whether a medicine or dose is right. | 17 | Pass |
+| Changes will appear here automatically when you add, edit, or stop a medicine. | 13 | Pass |
+| How it works | 3 | Pass |
+| Copy each medicine, dose, timing, and prescriber from a trusted source. | 11 | Pass |
+| Confirm the current list and keep dated changes. | 8 | Pass |
+| Print one page or download a JSON backup. | 8 | Pass |
+| Your record stays on this device | 6 | Pass |
+| There is no health-data account or cloud copy. | 8 | Pass |
+| You choose when to print or download a backup. | 9 | Pass |
+| Protect backups with a passphrase | 6 | Pass |
+| Encrypted backups are the only paid feature. | 7 | Pass |
+| The card, print view, and plain JSON backup stay free. | 10 | Pass |
+| Your health record stays in this browser during normal use. | 10 | Pass |
+| Scene generated for this product; no person or brand is depicted. | 11 | Pass |
 
-No sentence is over 22 words and none uses a banned marketing word.
+No sentence exceeds 22 words. No copy uses a banned marketing word.
 
 ## Terminology
 
@@ -24,3 +47,4 @@ No sentence is over 22 words and none uses a banned marketing word.
 | The person whose list it is | card owner |
 | The person maintaining it | card keeper |
 | The test-only record set | demo |
+| A downloaded data copy | backup |

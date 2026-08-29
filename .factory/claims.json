@@ -3,49 +3,70 @@
     "id": "demo-isolation",
     "claim": "The demo loads sample data separately from a real card and can be reset.",
     "where": "Home action, /demo banner, README, .factory/demo.md",
-    "test": "npm run test:e2e -- --grep @claim:demo-isolation",
-    "sandbox": "Fresh browser context opens /demo, observes sample data and banner, resets it, then starts a real empty card."
+    "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:demo-isolation",
+    "sandbox": "Fresh browser context opens /demo, edits and resets the sample, edits again, leaves for an empty real card, and confirms the demo edit was discarded."
   },
   {
     "id": "local-record",
     "claim": "Health records stay in the browser during normal use.",
     "where": "Home privacy fact, footer, Privacy page, README",
-    "test": "npm run test:e2e -- --grep @claim:local-record",
+    "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:local-record",
     "sandbox": "Fresh /demo flow records every request while an example medicine is edited; all requests are same-origin."
   },
   {
     "id": "offline-reload",
     "claim": "The card works offline after the first visit.",
     "where": "Home privacy fact, README",
-    "test": "npm run test:e2e -- --grep @claim:offline-reload",
+    "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:offline-reload",
     "sandbox": "Fresh browser context opens /demo once, waits for the active service worker, goes offline, and reloads the sample card."
   },
   {
     "id": "json-backup",
     "claim": "A plain JSON backup can be downloaded and restored.",
     "where": "Backup & settings, README",
-    "test": "npm run test:e2e -- --grep @claim:json-backup",
+    "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:json-backup",
     "sandbox": "Fresh /demo flow downloads JSON, uploads a valid backup, accepts the replacement confirmation, and observes restored data."
   },
   {
     "id": "print-card",
     "claim": "The current list appears on a one-page print/PDF handoff card.",
     "where": "Print / PDF button, README",
-    "test": "npm run test:e2e -- --grep @claim:print-card",
-    "sandbox": "Fresh /demo flow switches to print media and asserts that the sample medicine and safety note are in the printable card."
+    "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:print-card",
+    "sandbox": "Fresh /demo flow generates an A4 PDF, asserts it has exactly one page, and checks the sample medicine and safety note."
   },
   {
     "id": "dialog-keyboard",
     "claim": "Keyboard Tab focus stays inside an open medicine dialog.",
     "where": "README",
-    "test": "npm run test:e2e -- --grep @claim:dialog-keyboard",
+    "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:dialog-keyboard",
     "sandbox": "Fresh /demo flow opens a medicine editor, tabs forward through all controls, reverse-tabs once, and asserts focus remains in the dialog."
   },
   {
     "id": "encrypted-backup",
     "claim": "A verified one-time license enables a passphrase-protected backup.",
     "where": "Backup & settings, Terms, README",
-    "test": "npm run test:e2e -- --grep @claim:encrypted-backup",
+    "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:encrypted-backup",
     "sandbox": "Fresh /demo flow stubs a valid Sociobot license response, downloads the encrypted backup, and asserts its encrypted format does not expose a sample medicine."
+  },
+  {
+    "id": "record-workflow",
+    "claim": "The card records medicine details, confirmations, and dated change history across reloads.",
+    "where": "Product, README",
+    "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:record-workflow",
+    "sandbox": "Fresh real card adds and edits a medicine, confirms it, reloads, and checks the current record and visible history."
+  },
+  {
+    "id": "adaptive-interface",
+    "claim": "The interface supports light and dark themes, reduced motion, and a 390 px layout.",
+    "where": "Appearance setting, README",
+    "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:adaptive-interface",
+    "sandbox": "Fresh 390 px demo changes theme, emulates reduced motion, measures transition duration, and checks horizontal fit."
+  },
+  {
+    "id": "checkout-available",
+    "claim": "Encrypted backups cost $12 once through Sociobot checkout.",
+    "where": "Home facts, paid section, Backup & settings, Terms, README",
+    "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:checkout-available",
+    "sandbox": "Fresh home page checks the exact price and confirms the production Sociobot endpoint redirects to a Dodo checkout session."
   }
 ]

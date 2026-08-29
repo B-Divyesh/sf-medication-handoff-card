@@ -17,14 +17,22 @@
     {
       "route": "/manifest.webmanifest",
       "headers": { "Cache-Control": "no-cache" }
+    },
+    {
+      "route": "/demo",
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/privacy",
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/terms",
+      "rewrite": "/index.html"
     }
   ],
   "mimeTypes": {
     ".webmanifest": "application/manifest+json"
-  },
-  "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": ["/assets/*", "/sw.js", "/manifest.webmanifest", "/offline.html", "/offline.css", "/404.html", "/404.css", "/robots.txt", "/sitemap.xml"]
   },
   "responseOverrides": {
     "404": { "rewrite": "/404.html" }
