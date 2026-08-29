@@ -1,0 +1,15 @@
+{
+  "demoEditSaved": true,
+  "demoResetDiscardedEdit": true,
+  "print": {
+    "hasList": true,
+    "hasSafety": true,
+    "pageCount": 1
+  },
+  "realWorkflow": {
+    "owner": true,
+    "medicine": true,
+    "dose": true,
+    "confirmed": true
+  }
+}

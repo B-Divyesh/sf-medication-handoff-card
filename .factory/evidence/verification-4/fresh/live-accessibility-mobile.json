@@ -1,0 +1,45 @@
+{
+  "darkAxeSeriousCritical": [],
+  "skip": {
+    "focused": true,
+    "style": {
+      "outline": "rgb(109, 212, 237) solid 3px",
+      "width": 220.203125,
+      "height": 48.796875
+    }
+  },
+  "restore": {
+    "outline": "rgb(109, 212, 237) solid 3px",
+    "outlineWidth": "3px",
+    "width": 190.3358612060547,
+    "height": 45.30999755859375
+  },
+  "nav": [
+    {
+      "text": "Try demo",
+      "width": 40.953125,
+      "height": 44
+    },
+    {
+      "text": "Privacy",
+      "width": 54.28125,
+      "height": 44
+    },
+    {
+      "text": "Privacy",
+      "width": 50.984375,
+      "height": 44
+    },
+    {
+      "text": "Terms",
+      "width": 41.46875,
+      "height": 44
+    },
+    {
+      "text": "Source (external)",
+      "width": 48.359375,
+      "height": 44
+    }
+  ],
+  "overflow": true
+}

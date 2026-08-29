@@ -1,0 +1,203 @@
+{
+  "status": 200,
+  "headers": {
+    "cache-control": "public, must-revalidate, max-age=30",
+    "content-encoding": "br",
+    "content-security-policy": "default-src 'self'; base-uri 'self'; connect-src 'self' https://api.sociobot.in; font-src 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self' blob:; manifest-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'; worker-src 'self'",
+    "content-type": "text/html",
+    "date": "Sat, 29 Aug 2026 21:46:25 GMT",
+    "etag": "\"34221144\"",
+    "last-modified": "Sat, 29 Aug 2026 21:02:54 GMT",
+    "permissions-policy": "camera=(), geolocation=(), microphone=(), payment=(), usb=()",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "strict-transport-security": "max-age=10886400; includeSubDomains; preload",
+    "vary": "Accept-Encoding",
+    "x-content-type-options": "nosniff",
+    "x-dns-prefetch-control": "off",
+    "x-xss-protection": "1; mode=block"
+  },
+  "reading": {
+    "title": "Medication Handoff Card — share a clear medicine list",
+    "lang": "en",
+    "h1s": [
+      "Make a clear medication handoff card."
+    ],
+    "mainText": "A DATED LIST FOR THE NEXT HANDOFF\n\nMake a clear medication handoff card.\n\nFor adult children, caregivers, and older adults sharing a checked list with family or clinicians.\n\nTry it with sample data\nSee a completed card for Evelyn Parker.\n\nRecords stay in this browser.\nWorks offline after the first visit.\nCard, print, and JSON backup are free; encrypted backups cost $12 once.\nCommunication tool, not medical advice.\nNo interaction checks or dose recommendations. Confirm every change with a qualified clinician or pharmacist.\n\nCARD OWNER\n\nWhose medicines are these?\nPerson’s name *\nPerson keeping this card\nYou, a relative, or the card owner\nSave names\n\nCURRENT LIST · 0\n\nMedicines being taken\n\nSTART WITH THE CURRENT LIST\n\nNo medicines on this card yet\n\nAdd exactly what is written on the label. This tool records what you enter; it does not check whether a medicine or dose is right.\n\nAdd first medicine\n\nCHANGE HISTORY\n\nWhat changed\n\nChanges will appear here automatically when you add, edit, or stop a medicine.\n\nTHREE STEPS\n\nHow it works\nRecord the list.\nCopy each medicine, dose, timing, and prescriber from a trusted source.\nCheck the handoff.\nConfirm the current list and keep dated changes.\nShare a copy.\nPrint one page or download a JSON backup.\n\nPRIVACY\n\nYour record stays on this device\n\nThere is no health-data account or cloud copy. You choose when to print or download a backup.\n\nRead the privacy details\n\nOPTIONAL · $12 ONCE\n\nProtect backups with a passphrase\n\nEncrypted backup is the only paid feature. The card, print view, and plain JSON backup are free.\n\nBuy encrypted backups — $12",
+    "buttons": [
+      "Print / PDF",
+      "Backup & settings",
+      "Save names",
+      "Add first medicine",
+      "Add to card",
+      "Cancel",
+      "Stop & remove",
+      "Keep medicine",
+      " Confirm today",
+      "Cancel",
+      " Download JSON",
+      "Verify license",
+      " Change light or dark theme",
+      "Close settings"
+    ],
+    "links": [
+      {
+        "text": "Skip to main content",
+        "href": "https://medication-handoff-card.sociobot.in/#main-content"
+      },
+      {
+        "text": "M\nMedication Handoff Card",
+        "href": "https://medication-handoff-card.sociobot.in/"
+      },
+      {
+        "text": "Try demo",
+        "href": "https://medication-handoff-card.sociobot.in/demo"
+      },
+      {
+        "text": "Privacy",
+        "href": "https://medication-handoff-card.sociobot.in/privacy"
+      },
+      {
+        "text": "Try it with sample data",
+        "href": "https://medication-handoff-card.sociobot.in/?demo=1"
+      },
+      {
+        "text": "Read the privacy details",
+        "href": "https://medication-handoff-card.sociobot.in/privacy"
+      },
+      {
+        "text": "Buy encrypted backups — $12",
+        "href": "https://api.sociobot.in/api/v1/products/medication-handoff-card/checkout"
+      },
+      {
+        "text": "Privacy",
+        "href": "https://medication-handoff-card.sociobot.in/privacy"
+      },
+      {
+        "text": "Terms",
+        "href": "https://medication-handoff-card.sociobot.in/terms"
+      },
+      {
+        "text": "Source\n(external)",
+        "href": "https://github.com/B-Divyesh/sf-medication-handoff-card"
+      },
+      {
+        "text": "Unlock encrypted backups — $12",
+        "href": "https://api.sociobot.in/api/v1/products/medication-handoff-card/checkout"
+      },
+      {
+        "text": "Terms",
+        "href": "https://medication-handoff-card.sociobot.in/terms"
+      },
+      {
+        "text": "Privacy",
+        "href": "https://medication-handoff-card.sociobot.in/privacy"
+      }
+    ],
+    "html": 15197
+  },
+  "requests": [
+    {
+      "url": "https://medication-handoff-card.sociobot.in/",
+      "method": "GET",
+      "type": "document"
+    },
+    {
+      "url": "https://medication-handoff-card.sociobot.in/assets/index-BQQ9YWH-.js",
+      "method": "GET",
+      "type": "script"
+    },
+    {
+      "url": "https://medication-handoff-card.sociobot.in/assets/index-bKv0T_u2.css",
+      "method": "GET",
+      "type": "stylesheet"
+    },
+    {
+      "url": "https://medication-handoff-card.sociobot.in/assets/hero-kitchen-table-1280.webp",
+      "method": "GET",
+      "type": "image"
+    }
+  ],
+  "responses": [
+    {
+      "url": "https://medication-handoff-card.sociobot.in/",
+      "status": 200,
+      "headers": {
+        "cache-control": "public, must-revalidate, max-age=30",
+        "content-encoding": "br",
+        "content-security-policy": "default-src 'self'; base-uri 'self'; connect-src 'self' https://api.sociobot.in; font-src 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self' blob:; manifest-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'; worker-src 'self'",
+        "content-type": "text/html",
+        "date": "Sat, 29 Aug 2026 21:46:25 GMT",
+        "etag": "\"34221144\"",
+        "last-modified": "Sat, 29 Aug 2026 21:02:54 GMT",
+        "permissions-policy": "camera=(), geolocation=(), microphone=(), payment=(), usb=()",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "strict-transport-security": "max-age=10886400; includeSubDomains; preload",
+        "vary": "Accept-Encoding",
+        "x-content-type-options": "nosniff",
+        "x-dns-prefetch-control": "off",
+        "x-xss-protection": "1; mode=block"
+      }
+    },
+    {
+      "url": "https://medication-handoff-card.sociobot.in/assets/index-bKv0T_u2.css",
+      "status": 200,
+      "headers": {
+        "strict-transport-security": "max-age=10886400; includeSubDomains; preload",
+        "content-security-policy": "default-src 'self'; base-uri 'self'; connect-src 'self' https://api.sociobot.in; font-src 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self' blob:; manifest-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'; worker-src 'self'",
+        "cache-control": "public, max-age=31536000, immutable",
+        "x-dns-prefetch-control": "off",
+        "content-encoding": "br",
+        "etag": "\"34221144\"",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "x-content-type-options": "nosniff",
+        "permissions-policy": "camera=(), geolocation=(), microphone=(), payment=(), usb=()",
+        "date": "Sat, 29 Aug 2026 21:46:25 GMT",
+        "x-xss-protection": "1; mode=block",
+        "content-type": "text/css",
+        "last-modified": "Sat, 29 Aug 2026 21:02:54 GMT",
+        "vary": "Accept-Encoding"
+      }
+    },
+    {
+      "url": "https://medication-handoff-card.sociobot.in/assets/index-BQQ9YWH-.js",
+      "status": 200,
+      "headers": {
+        "strict-transport-security": "max-age=10886400; includeSubDomains; preload",
+        "content-security-policy": "default-src 'self'; base-uri 'self'; connect-src 'self' https://api.sociobot.in; font-src 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self' blob:; manifest-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'; worker-src 'self'",
+        "cache-control": "public, max-age=31536000, immutable",
+        "x-dns-prefetch-control": "off",
+        "content-encoding": "br",
+        "etag": "\"34221144\"",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "x-content-type-options": "nosniff",
+        "permissions-policy": "camera=(), geolocation=(), microphone=(), payment=(), usb=()",
+        "date": "Sat, 29 Aug 2026 21:46:25 GMT",
+        "x-xss-protection": "1; mode=block",
+        "content-type": "text/javascript",
+        "last-modified": "Sat, 29 Aug 2026 21:02:54 GMT",
+        "vary": "Accept-Encoding"
+      }
+    },
+    {
+      "url": "https://medication-handoff-card.sociobot.in/assets/hero-kitchen-table-1280.webp",
+      "status": 200,
+      "headers": {
+        "strict-transport-security": "max-age=10886400; includeSubDomains; preload",
+        "content-security-policy": "default-src 'self'; base-uri 'self'; connect-src 'self' https://api.sociobot.in; font-src 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self' blob:; manifest-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'; worker-src 'self'",
+        "cache-control": "public, max-age=31536000, immutable",
+        "x-dns-prefetch-control": "off",
+        "etag": "\"34221144\"",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "x-content-type-options": "nosniff",
+        "permissions-policy": "camera=(), geolocation=(), microphone=(), payment=(), usb=()",
+        "content-length": "77206",
+        "date": "Sat, 29 Aug 2026 21:46:25 GMT",
+        "x-xss-protection": "1; mode=block",
+        "content-type": "image/webp",
+        "last-modified": "Sat, 29 Aug 2026 21:02:54 GMT"
+      }
+    }
+  ],
+  "consoleErrors": [],
+  "pageErrors": []
+}

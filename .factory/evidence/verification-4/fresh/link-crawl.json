@@ -1,0 +1,53 @@
+[
+  {
+    "href": "https://api.sociobot.in/api/v1/products/medication-handoff-card/checkout",
+    "status": 303,
+    "location": "https://checkout.dodopayments.com/session/cks_0NmTGVwvF5yRhJRRH7nWz"
+  },
+  {
+    "href": "https://github.com/B-Divyesh/sf-medication-handoff-card",
+    "status": 200,
+    "location": null
+  },
+  {
+    "href": "https://medication-handoff-card.sociobot.in/",
+    "status": 200,
+    "location": null
+  },
+  {
+    "href": "https://medication-handoff-card.sociobot.in/#main-content",
+    "status": "anchor/mailto"
+  },
+  {
+    "href": "https://medication-handoff-card.sociobot.in/?demo=1",
+    "status": 200,
+    "location": null
+  },
+  {
+    "href": "https://medication-handoff-card.sociobot.in/demo",
+    "status": 200,
+    "location": null
+  },
+  {
+    "href": "https://medication-handoff-card.sociobot.in/demo#main-content",
+    "status": "anchor/mailto"
+  },
+  {
+    "href": "https://medication-handoff-card.sociobot.in/privacy",
+    "status": 200,
+    "location": null
+  },
+  {
+    "href": "https://medication-handoff-card.sociobot.in/privacy#main-content",
+    "status": "anchor/mailto"
+  },
+  {
+    "href": "https://medication-handoff-card.sociobot.in/terms",
+    "status": 200,
+    "location": null
+  },
+  {
+    "href": "https://medication-handoff-card.sociobot.in/terms#main-content",
+    "status": "anchor/mailto"
+  }
+]

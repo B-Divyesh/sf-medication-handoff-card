@@ -1,0 +1,40 @@
+{
+  "candidate": "c2671fe2f3b81994589705a4b2ae7e510c97da5c",
+  "liveUrl": "https://medication-handoff-card.sociobot.in",
+  "verifiedAt": "2026-08-29T21:54:00Z",
+  "whitespaceRequiredFields": {
+    "browserFormValidity": true,
+    "storedMedication": {
+      "name": "",
+      "dose": "",
+      "timing": ""
+    },
+    "result": "Saved data on this device is incomplete; medicine dialog closed"
+  },
+  "license429": {
+    "response": "controlled 429 Retry-After: 4 from exact Sociobot verify URL",
+    "newTokenHasCachedVerdict": false,
+    "uiState": "Unlocked",
+    "encryptedBackupControlVisible": true
+  },
+  "liveRateAllowance": {
+    "requests1Through30": 200,
+    "request31": 429,
+    "retryAfter": "4"
+  },
+  "darkSettingsAxe": {
+    "impact": "serious",
+    "rule": "color-contrast",
+    "element": "One-time unlock · $12",
+    "foreground": "#e37661",
+    "background": "#2d353a",
+    "contrast": "4.17:1",
+    "required": "4.5:1"
+  },
+  "undersizedMobileTargets": [
+    { "text": "Try demo", "width": 41, "height": 44 },
+    { "text": "Terms", "width": 41.5, "height": 44 },
+    { "text": "Terms", "width": 37.7, "height": 15 },
+    { "text": "Privacy", "width": 46.3, "height": 15 }
+  ]
+}
