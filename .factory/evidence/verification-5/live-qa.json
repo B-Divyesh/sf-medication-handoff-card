@@ -1,0 +1,99 @@
+{
+  "routes": {
+    "/": {
+      "title": "Medication Handoff Card — share a clear medicine list",
+      "h1": [
+        "Make a clear medication handoff card."
+      ],
+      "seriousCritical": []
+    },
+    "/demo": {
+      "title": "Demo — Medication Handoff Card",
+      "h1": [
+        "Make a clear medication handoff card."
+      ],
+      "seriousCritical": []
+    },
+    "/privacy": {
+      "title": "Privacy — Medication Handoff Card",
+      "h1": [
+        "Privacy"
+      ],
+      "seriousCritical": []
+    },
+    "/terms": {
+      "title": "Terms — Medication Handoff Card",
+      "h1": [
+        "Terms of use"
+      ],
+      "seriousCritical": []
+    }
+  },
+  "desktop": {
+    "demoEdit": {
+      "owner": true,
+      "edited": "Lisinopril\n\n10 mg\n\nWHEN\nEach morning\nPRESCRIBER\nDr. Nina Shah\n\nNOTE\nTake as listed on the pharmacy label.\n\nEdit\nStop & remove",
+      "allRequestsSameOrigin": true,
+      "requests": [
+        "https://medication-handoff-card.sociobot.in/demo",
+        "https://medication-handoff-card.sociobot.in/assets/index-eTnJiOPs.js",
+        "https://medication-handoff-card.sociobot.in/assets/index-2egXvVry.css"
+      ]
+    },
+    "serviceWorker": {
+      "controller": true,
+      "active": "https://medication-handoff-card.sociobot.in/sw.js",
+      "waiting": null,
+      "scope": "https://medication-handoff-card.sociobot.in/",
+      "caches": [
+        "mhc-v6-shell",
+        "mhc-v6-runtime"
+      ]
+    }
+  },
+  "mobile": {
+    "scrollWidth": 390,
+    "innerWidth": 390,
+    "theme": "light",
+    "transition": "1e-05s",
+    "seriousCritical": [],
+    "errors": []
+  },
+  "offline": {
+    "ownerVisible": true,
+    "notice": [
+      "Offline:"
+    ],
+    "errors": []
+  },
+  "keyboard": {
+    "skipLink": {
+      "tag": "A",
+      "text": "Skip to main content",
+      "outline": "rgb(20, 127, 152) solid 3px",
+      "outlineWidth": "3px"
+    },
+    "dialogFocusContained": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "print": {
+    "bytes": 34096,
+    "pages": 1,
+    "containsLisinopril": false,
+    "containsSafety": false
+  },
+  "errors": []
+}

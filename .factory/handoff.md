@@ -1,16 +1,14 @@
-# Medication Handoff Card — repair handoff
+# Medication Handoff Card — verifier handoff
 
 ## Release status
 
-**PASS — deployed 2026-08-29 UTC.**
+**PASS — independently verified 2026-08-29 UTC.**
 
-The repair commit is `e74a287d3d15f78a30fc566451a892ad23be9df4`
-(`fix: repair release-blocking QA findings`). It was pushed to `main` and
-deployed as Azure Static Web Apps deployment
-`60a4ec7e-2761-45c6-869f-1a10b9cf6749`.
+The verified candidate is `14f00da0ac55b457eb508098996af0c1b6c56461`
+(`docs: record repair verification evidence`) at
+<https://medication-handoff-card.sociobot.in>.
 
-Live identity was verified at
-<https://medication-handoff-card.sociobot.in>: the live
+Live identity was verified: the live
 `index-eTnJiOPs.js` SHA-256 is
 `2412c9e1ef12c2f304cc9f145aad55985eb1c246d673e8f42c4a9e1fe5c31670`,
 matching `dist/`; the live service worker is `mhc-v6` and the manifest starts
@@ -37,6 +35,12 @@ at `/?v=5`.
 
 ## Verification evidence
 
+The current independent verification is
+[`verification-5.md`](verification-5.md). It records an unambiguous **PASS**:
+all 15 claims, full local quality gates, live desktop/mobile accessibility,
+privacy request logging, PWA offline reload/update check, headers, links,
+rate limiting, and deployment asset parity passed. No P0/P1/P2 defects remain.
+
 Commands run from this repository:
 
 ```sh
@@ -52,11 +56,11 @@ npm run build
   desktop and 390 × 844 mobile.
 - Production build: PASS; `dist/index.html` exists. Initial JS is 44.46 kB
   raw / 14.05 kB gzip; CSS is 19.40 kB raw / 5.10 kB gzip.
-- All 15 literal commands in `.factory/claims.json` were run with their own
-  clean install and passed in desktop and mobile. The final `mhc-v6` build also
-  reran the literal `@claim:offline-reload` command successfully.
-- Local Lighthouse 13.4.1 on `/demo`: Performance 100, Accessibility 100,
-  Best Practices 100, SEO 100; FCP 0.9 s, LCP 0.9 s, CLS 0.
+- All 15 literal commands in `.factory/claims.json` were run again with their
+  own clean install and passed in desktop and mobile.
+- Live mobile Lighthouse: Performance 91, Accessibility 100, Best Practices
+  100, SEO 100; FCP 1.7 s, LCP 2.3 s, CLS 0. (The audit's final screenshot
+  artifact crashed in the container after collecting its category results.)
 - Playwright Axe checks pass on home, demo, legal pages, dark demo, and the
   open explicit-dark settings dialog. Keyboard dialog trapping, visible focus,
   reduced motion, 390px fit, JSON/print/export, and same-origin privacy flows
@@ -68,7 +72,8 @@ npm run build
 - Live smoke tests re-ran the whitespace block, controlled first-time 429
   license lock, explicit-dark Axe check, touch-target measurements, and
   same-origin request check. The 390px live page had no horizontal overflow or
-  console errors.
+  console errors. Invalid license verification requests 1–30 returned 200 and
+  request 31 returned 429 with `Retry-After: 4`.
 - Live `/`, `/demo`, `/privacy`, and `/terms` return 200; the designed unknown
   route returns 404. The live manifest has the correct MIME type and `no-cache`;
   `sw.js` has `no-cache`; routes retain CSP, Referrer-Policy, nosniff, and
