@@ -2,7 +2,7 @@
 
 ## Release status
 
-**Ready for static deployment verification.** This repair addresses every
+**Code repair pushed; static deployment pending the factory.** This repair addresses every
 finding in independent verification report `6d9c643cb4584a2c82ac8e64025ebe4e8ccca087`
 for candidate `67399cd635f62e9ead77f435211678763b95232f`.
 
@@ -63,6 +63,15 @@ at the root of `dist/`; it supplies the production security, cache, MIME, and
 
 ## Known gaps
 
-None in the repaired product. The optional paid-license verification depends
-on the documented Sociobot billing endpoint; all free local-first workflows,
-demo behavior, and offline use work without it.
+The repaired code commit is on `main` (`91b1a6b`), but the live URL still served the prior
+artifact when checked after the push: `last-modified: Fri, 28 Aug 2026` and no
+CSP header. GitHub's deployment and Actions APIs report no deployment workflow
+or deployment record for this repository. This repository does not contain a
+factory deployment credential or target configuration, and its `AGENTS.md`
+prohibits direct infrastructure changes. The factory must publish `dist/` from
+the pushed `main` revision; `staticwebapp.config.json` is included for that
+deployment.
+
+The optional paid-license verification depends on the documented Sociobot
+billing endpoint; all free local-first workflows, demo behavior, and offline
+use work without it.
