@@ -1,0 +1,117 @@
+{
+  "base": "https://medication-handoff-card.sociobot.in",
+  "checkedAt": "2026-08-29T21:49:16.098Z",
+  "routes": {
+    "/": {
+      "status": 200,
+      "title": "Medication Handoff Card — share a clear medicine list",
+      "lang": "en",
+      "h1": [
+        "Make a clear medication handoff card."
+      ],
+      "main": 1,
+      "seriousCritical": []
+    },
+    "/demo": {
+      "status": 200,
+      "title": "Demo — Medication Handoff Card",
+      "lang": "en",
+      "h1": [
+        "Make a clear medication handoff card."
+      ],
+      "main": 1,
+      "seriousCritical": []
+    },
+    "/privacy": {
+      "status": 200,
+      "title": "Privacy — Medication Handoff Card",
+      "lang": "en",
+      "h1": [
+        "Privacy"
+      ],
+      "main": 1,
+      "seriousCritical": []
+    },
+    "/terms": {
+      "status": 200,
+      "title": "Terms — Medication Handoff Card",
+      "lang": "en",
+      "h1": [
+        "Terms of use"
+      ],
+      "main": 1,
+      "seriousCritical": []
+    }
+  },
+  "axe": {
+    "/": [],
+    "/demo": [],
+    "/privacy": [],
+    "/terms": []
+  },
+  "desktop": {
+    "demoBanner": true,
+    "owner": true,
+    "editedContains": false,
+    "resetDiscarded": false,
+    "keyboardFocusTrapped": true,
+    "download": {
+      "owner": "Evelyn Parker",
+      "medicines": [
+        "Lisinopril",
+        "Metformin ER",
+        "Vitamin D3"
+      ],
+      "format": "medication-handoff-card"
+    },
+    "invalidImportStatus": "This file is not readable JSON. Choose a Medication Handoff Card .json or .mhc backup.",
+    "requests": [
+      {
+        "url": "https://medication-handoff-card.sociobot.in/demo",
+        "method": "GET",
+        "type": "document"
+      },
+      {
+        "url": "https://medication-handoff-card.sociobot.in/assets/index-BQQ9YWH-.js",
+        "method": "GET",
+        "type": "script"
+      },
+      {
+        "url": "https://medication-handoff-card.sociobot.in/assets/index-bKv0T_u2.css",
+        "method": "GET",
+        "type": "stylesheet"
+      }
+    ],
+    "allDemoRequestsSameOrigin": true,
+    "horizontalOverflow": false,
+    "realWorkflow": {
+      "owner": true,
+      "medicine": true,
+      "confirmed": false,
+      "persistedAfterReload": true
+    }
+  },
+  "mobile": {
+    "scrollWidth": 390,
+    "innerWidth": 390,
+    "theme": "light",
+    "transitionDuration": "1e-05s",
+    "fit": true
+  },
+  "privacy": {},
+  "pwa": {
+    "before": {
+      "controller": "https://medication-handoff-card.sociobot.in/sw.js",
+      "registration": "https://medication-handoff-card.sociobot.in/sw.js",
+      "caches": [
+        "mhc-v5-shell",
+        "mhc-v5-runtime"
+      ]
+    },
+    "offline": {
+      "owner": true,
+      "notice": "Offline:"
+    }
+  },
+  "errors": []
+}

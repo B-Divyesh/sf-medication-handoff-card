@@ -1,0 +1,15 @@
+HTTP/2 200 
+content-type: application/manifest+json
+date: Sat, 29 Aug 2026 21:49:43 GMT
+cache-control: no-cache
+etag: "34221144"
+last-modified: Sat, 29 Aug 2026 21:02:54 GMT
+content-length: 653
+strict-transport-security: max-age=10886400; includeSubDomains; preload
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+x-dns-prefetch-control: off
+content-security-policy: default-src 'self'; base-uri 'self'; connect-src 'self' https://api.sociobot.in; font-src 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self' blob:; manifest-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'; worker-src 'self'
+permissions-policy: camera=(), geolocation=(), microphone=(), payment=(), usb=()
+
