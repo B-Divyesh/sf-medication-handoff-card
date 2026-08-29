@@ -23,6 +23,7 @@ rely on them even when they do not end in punctuation.
 | Add exactly what is written on the label. | 8 | Pass |
 | This tool records what you enter; it does not check whether a medicine or dose is right. | 17 | Pass |
 | Changes will appear here automatically when you add, edit, or stop a medicine. | 13 | Pass |
+| The 20 latest entries are shown. All history is included in backups. | 12 | Pass · `full-history-backup` |
 | How it works | 3 | Pass |
 | Copy each medicine, dose, timing, and prescriber from a trusted source. | 11 | Pass |
 | Confirm the current list and keep dated changes. | 8 | Pass |

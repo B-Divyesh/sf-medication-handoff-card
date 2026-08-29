@@ -25,13 +25,14 @@ export function storeLicense(token: string): void {
 }
 
 export function cachedUnlock(): boolean {
-  const token = localStorage.getItem(TOKEN_KEY);
-  if (!token) return false;
+  if (!localStorage.getItem(TOKEN_KEY)) return false;
   try {
     const verdict = JSON.parse(localStorage.getItem(VERDICT_KEY) ?? '') as CachedVerdict;
-    return verdict.valid;
+    // A token is not an entitlement. It can unlock the paid backup only after
+    // this device has received and stored an explicit valid verdict.
+    return verdict.valid === true && Number.isFinite(verdict.checkedAt);
   } catch {
-    return true;
+    return false;
   }
 }
 
@@ -40,16 +41,23 @@ export async function verifyLicense(force = false): Promise<{ valid: boolean; me
   if (!token) return { valid: false };
   try {
     const previous = JSON.parse(localStorage.getItem(VERDICT_KEY) ?? '') as CachedVerdict;
-    if (!force && Date.now() - previous.checkedAt < DAY) return { valid: previous.valid };
+    if (!force && typeof previous.valid === 'boolean' && Number.isFinite(previous.checkedAt) && Date.now() - previous.checkedAt < DAY) return { valid: previous.valid };
   } catch { /* first verification */ }
 
   try {
     const response = await fetch(`${API_BASE}/products/${SLUG}/verify?license=${encodeURIComponent(token)}`);
     if (!response.ok) throw new Error('Verification service unavailable');
     const result = await response.json() as { valid: boolean; reason?: string };
-    localStorage.setItem(VERDICT_KEY, JSON.stringify({ valid: result.valid, checkedAt: Date.now() }));
-    return { valid: result.valid, message: result.valid ? undefined : 'License no longer active.' };
+    const valid = result.valid === true;
+    localStorage.setItem(VERDICT_KEY, JSON.stringify({ valid, checkedAt: Date.now() }));
+    return { valid, message: valid ? undefined : 'License no longer active.' };
   } catch {
-    return { valid: cachedUnlock(), message: 'Could not recheck the license while offline. Cached access is unchanged.' };
+    const valid = cachedUnlock();
+    return {
+      valid,
+      message: valid
+        ? 'Could not recheck the license while offline. Cached verified access is unchanged.'
+        : 'Could not verify this license. Encrypted backups stay locked until it can be verified.'
+    };
   }
 }

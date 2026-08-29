@@ -40,4 +40,9 @@ describe('static deployment regressions', () => {
     await expect(readFile(projectFile('public/favicon.svg'), 'utf8')).resolves.toContain('<svg');
     expect((await readFile(projectFile('public/assets/apple-touch-icon.png'))).byteLength).toBeGreaterThan(1_000);
   });
+
+  it('versions the app shell for this repair so installed cards receive the update', async () => {
+    await expect(readFile(projectFile('public/sw.js'), 'utf8')).resolves.toContain("const VERSION = 'mhc-v6'");
+    await expect(readFile(projectFile('public/manifest.webmanifest'), 'utf8')).resolves.toContain('"start_url": "/?v=5"');
+  });
 });

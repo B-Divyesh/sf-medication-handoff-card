@@ -58,6 +58,56 @@ test('keeps stopped medicines in the visible change history', async ({ page }) =
   await expect(page.getByText('No medicines on this card yet')).toBeVisible();
 });
 
+test('rejects whitespace-only required medicine, stop, and confirmation values before any local write', async ({ page }) => {
+  await page.goto('/');
+  await page.getByLabel(/Person’s name/).fill('Ruth Bennett');
+  await page.getByRole('button', { name: 'Save names' }).click();
+
+  await page.getByRole('button', { name: 'Add first medicine' }).click();
+  await page.getByLabel(/Medicine name/).fill('   ');
+  await page.getByLabel(/Dose or strength/).fill('   ');
+  await page.getByLabel(/When taken/).fill('   ');
+  await page.getByRole('button', { name: 'Add to card' }).click();
+  const medicineDialog = page.getByRole('dialog', { name: 'Add medicine' });
+  await expect(medicineDialog).toBeVisible();
+  await expect(page.getByText('Enter a medicine name, not only spaces.')).toBeVisible();
+  await expect(page.getByLabel(/Medicine name/)).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.getByLabel(/Dose or strength/)).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.getByLabel(/When taken/)).toHaveAttribute('aria-invalid', 'true');
+  expect(await page.evaluate(() => new Promise<unknown[]>((resolve) => {
+    const request = indexedDB.open('medication-handoff-card');
+    request.onsuccess = () => {
+      const records = request.result.transaction('medications').objectStore('medications').getAll();
+      records.onsuccess = () => resolve(records.result);
+    };
+  }))).toEqual([]);
+
+  await page.getByLabel(/Medicine name/).fill('Lisinopril');
+  await page.getByLabel(/Dose or strength/).fill('10 mg');
+  await page.getByLabel(/When taken/).fill('Each morning');
+  await page.getByRole('button', { name: 'Add to card' }).click();
+  await expect(page.getByRole('heading', { name: 'Lisinopril' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Confirm current list' }).click();
+  await page.getByLabel('Confirmed by').fill('   ');
+  await page.getByLabel(/I checked all 1 current medicine/).check();
+  await page.getByRole('button', { name: 'Confirm today' }).click();
+  await expect(page.getByRole('dialog', { name: 'Confirm the current list' })).toBeVisible();
+  await expect(page.getByText('Enter who checked the list, not only spaces.')).toBeVisible();
+  await page.getByLabel('Confirmed by').fill('Maya Bennett');
+  await page.getByRole('button', { name: 'Confirm today' }).click();
+  await expect(page.getByText('Current list confirmed', { exact: true })).toBeVisible();
+
+  await page.getByLabel('Medicines being taken').getByRole('button', { name: 'Stop & remove' }).click();
+  await page.getByRole('dialog').getByRole('textbox', { name: 'What changed?' }).fill('   ');
+  await page.getByRole('dialog').getByRole('button', { name: 'Stop & remove' }).click();
+  await expect(page.getByRole('dialog', { name: /Stop and remove Lisinopril/ })).toBeVisible();
+  await expect(page.getByText('Describe what changed, not only spaces.')).toBeVisible();
+  await page.getByRole('dialog').getByRole('textbox', { name: 'What changed?' }).fill('Stopped by Dr. Lee.');
+  await page.getByRole('dialog').getByRole('button', { name: 'Stop & remove' }).click();
+  await expect(page.getByText('Lisinopril stopped', { exact: true })).toBeVisible();
+});
+
 test('passes serious accessibility checks on the main and legal pages', async ({ page }, testInfo) => {
   await page.goto('/');
   const results = await new AxeBuilder({ page }).exclude('.generation-note').analyze();
@@ -82,6 +132,17 @@ test('passes serious accessibility checks in the populated dark demo', async ({ 
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? '')),
     `Dark demo accessibility violations in ${testInfo.project.name}`).toEqual([]);
+});
+
+test('passes serious accessibility checks after changing to dark theme in open settings', async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/demo');
+  await page.getByRole('button', { name: 'Backup & settings' }).click();
+  await page.getByRole('button', { name: 'Change light or dark theme' }).click();
+  await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe('dark');
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? '')),
+    `Dark settings accessibility violations in ${testInfo.project.name}`).toEqual([]);
 });
 
 test('uses plain-language titles for the home and demo routes', async ({ page }) => {
@@ -191,6 +252,22 @@ test('@claim:encrypted-backup restores a one-time license and creates an encrypt
   expect(encrypted).not.toContain('Lisinopril');
 });
 
+test('keeps encrypted backup locked when a first-time license verification is rate limited', async ({ page }) => {
+  await page.route('https://api.sociobot.in/api/v1/products/medication-handoff-card/verify**', (route) => route.fulfill({
+    status: 429,
+    headers: { 'retry-after': '4' },
+    contentType: 'application/json',
+    body: JSON.stringify({ error: 'rate_limited' })
+  }));
+  await page.goto('/demo?license=qa-new-license-with-no-verdict');
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('sb_license:medication-handoff-card'))).toBe('qa-new-license-with-no-verdict');
+  await page.getByRole('button', { name: 'Backup & settings' }).click();
+  await expect(page.getByText('Locked', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Download encrypted backup' })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Unlock encrypted backups — $12' })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('sb_license_verdict:medication-handoff-card'))).toBeNull();
+});
+
 test('@claim:demo-isolation loads sample data separately and can return to an empty real card', async ({ page }) => {
   await page.goto('/?demo=1');
   await expect(page).toHaveURL('/?demo=1');
@@ -260,6 +337,28 @@ test('@claim:json-backup downloads and restores a plain JSON backup from the dem
   await expect(page.getByRole('heading', { name: 'Restored Sample' })).toBeVisible();
 });
 
+test('@claim:full-history-backup includes history beyond the 20 visible entries in a downloaded backup', async ({ page }, testInfo) => {
+  testInfo.setTimeout(60_000);
+  await page.goto('/demo');
+  for (let index = 1; index <= 21; index += 1) {
+    await page.getByRole('button', { name: 'Edit', exact: true }).first().click();
+    await page.getByLabel(/Notes from the label/).fill(`Checked update ${index}.`);
+    await page.getByRole('button', { name: 'Save change' }).click();
+    await expect(page.getByRole('dialog', { name: 'Edit medicine' })).toBeHidden();
+  }
+  await expect(page.getByText('The 20 latest entries are shown. All history is included in backups.')).toBeVisible();
+  await page.getByRole('button', { name: 'Backup & settings' }).click();
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download JSON' }).click();
+  const download = await downloadPromise;
+  const downloadedPath = await download.path();
+  if (!downloadedPath) throw new Error('Full-history backup download was not written.');
+  const backup = JSON.parse(await readFile(downloadedPath, 'utf8')) as { changes: Array<{ kind: string; details: string }> };
+  expect(backup.changes).toHaveLength(23);
+  expect(backup.changes.filter((change) => change.kind === 'updated')).toHaveLength(21);
+  expect(backup.changes.map((change) => change.details)).toContain('Changed notes.');
+});
+
 test('@claim:print-card creates a one-page PDF with the current demo list', async ({ page }) => {
   await page.goto('/demo');
   await page.emulateMedia({ media: 'print' });
@@ -304,7 +403,7 @@ test('rejects malformed and invalid JSON backups without changing saved data', a
   await expect(page.getByRole('status')).toContainText('Choose a Medication Handoff Card');
 });
 
-test('shows keyboard focus on restore and gives navigation links 44px touch targets', async ({ page }) => {
+test('shows keyboard focus on restore and gives every reported 390px link a 44px touch target', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/demo');
   await page.getByRole('button', { name: 'Backup & settings' }).click();
@@ -318,12 +417,17 @@ test('shows keyboard focus on restore and gives navigation links 44px touch targ
   expect(parseFloat(restoreStyle.outlineWidth)).toBeGreaterThanOrEqual(3);
   expect(restoreStyle.width).toBeGreaterThanOrEqual(44);
   expect(restoreStyle.height).toBeGreaterThanOrEqual(44);
-  await page.getByRole('button', { name: 'Close settings' }).click();
-  const sizes = await page.locator('.site-nav a, footer nav a').evaluateAll((links) => links.map((link) => {
+  const settingsLinkSizes = await page.locator('.fine-print a').evaluateAll((links) => links.map((link) => {
     const box = link.getBoundingClientRect();
     return { text: link.textContent, width: box.width, height: box.height };
   }));
-  expect(sizes.every(({ height }) => height >= 44)).toBe(true);
+  expect(settingsLinkSizes.every(({ width, height }) => width >= 44 && height >= 44)).toBe(true);
+  await page.getByRole('button', { name: 'Close settings' }).click();
+  const sizes = await page.locator('.brand, .site-nav a, footer nav a').evaluateAll((links) => links.map((link) => {
+    const box = link.getBoundingClientRect();
+    return { text: link.textContent, width: box.width, height: box.height };
+  }));
+  expect(sizes.every(({ width, height }) => width >= 44 && height >= 44)).toBe(true);
 });
 
 test('wraps maximum-length card values on a 390px screen', async ({ page }) => {

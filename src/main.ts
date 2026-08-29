@@ -109,8 +109,8 @@ function profileSection(): string {
   if (state.profileEditing || !state.profile.personName) {
     return `<section class="identity-panel" aria-labelledby="identity-heading">
       <div><p class="eyebrow">Card owner</p><h2 id="identity-heading">Whose medicines are these?</h2></div>
-      <form id="profile-form" class="identity-form">
-        <label><span>Person’s name <b aria-hidden="true">*</b></span><input name="personName" autocomplete="name" required maxlength="80" value="${escaped(state.profile.personName)}"></label>
+      <form id="profile-form" class="identity-form" novalidate>
+        <label><span>Person’s name <b aria-hidden="true">*</b></span><input name="personName" autocomplete="name" required maxlength="80" aria-describedby="profile-person-name-error" value="${escaped(state.profile.personName)}"></label><p class="field-error" id="profile-person-name-error" data-field-error="personName" role="alert" hidden></p>
         <label><span>Person keeping this card</span><input name="caregiverName" autocomplete="name" maxlength="80" value="${escaped(state.profile.caregiverName)}"><small>You, a relative, or the card owner</small></label>
         <div class="form-actions"><button class="button primary" type="submit">Save names</button>${state.profile.personName ? '<button class="button quiet" type="button" data-cancel-profile>Cancel</button>' : ''}</div>
       </form>
@@ -150,10 +150,10 @@ function changeLog(): string {
 
 function medicineDialog(): string {
   const med = state.editingMedication;
-  return `<dialog id="medicine-dialog" aria-labelledby="medicine-dialog-title"><form id="medicine-form" class="dialog-form">
+  return `<dialog id="medicine-dialog" aria-labelledby="medicine-dialog-title"><form id="medicine-form" class="dialog-form" novalidate>
     <div class="dialog-heading"><p class="eyebrow">Current list</p><h2 id="medicine-dialog-title">${med ? 'Edit medicine' : 'Add medicine'}</h2><p>Copy the label. Ask a clinician or pharmacist if anything is unclear.</p></div>
-    <label><span>Medicine name <b aria-hidden="true">*</b></span><input name="name" required maxlength="120" autocomplete="off" value="${escaped(med?.name ?? '')}"></label>
-    <div class="field-pair"><label><span>Dose or strength <b aria-hidden="true">*</b></span><input name="dose" required maxlength="80" autocomplete="off" value="${escaped(med?.dose ?? '')}" placeholder="For example, 10 mg"></label><label><span>When taken <b aria-hidden="true">*</b></span><input name="timing" required maxlength="120" autocomplete="off" value="${escaped(med?.timing ?? '')}" placeholder="For example, each morning"></label></div>
+    <label><span>Medicine name <b aria-hidden="true">*</b></span><input name="name" required maxlength="120" autocomplete="off" aria-describedby="medicine-name-error" value="${escaped(med?.name ?? '')}"></label><p class="field-error" id="medicine-name-error" data-field-error="name" role="alert" hidden></p>
+    <div class="field-pair"><div><label><span>Dose or strength <b aria-hidden="true">*</b></span><input name="dose" required maxlength="80" autocomplete="off" aria-describedby="medicine-dose-error" value="${escaped(med?.dose ?? '')}" placeholder="For example, 10 mg"></label><p class="field-error" id="medicine-dose-error" data-field-error="dose" role="alert" hidden></p></div><div><label><span>When taken <b aria-hidden="true">*</b></span><input name="timing" required maxlength="120" autocomplete="off" aria-describedby="medicine-timing-error" value="${escaped(med?.timing ?? '')}" placeholder="For example, each morning"></label><p class="field-error" id="medicine-timing-error" data-field-error="timing" role="alert" hidden></p></div></div>
     <label><span>Prescriber</span><input name="prescriber" maxlength="120" autocomplete="off" value="${escaped(med?.prescriber ?? '')}" placeholder="Name or clinic"></label>
     <label><span>Notes from the label or clinician</span><textarea name="notes" maxlength="300" rows="3">${escaped(med?.notes ?? '')}</textarea></label>
     <p class="form-note">Required fields are marked <b>*</b>. Do not enter instructions you have not confirmed.</p>
@@ -163,18 +163,18 @@ function medicineDialog(): string {
 
 function stopDialog(): string {
   const med = state.stoppingMedication;
-  return `<dialog id="stop-dialog" aria-labelledby="stop-dialog-title"><form id="stop-form" class="dialog-form">
+  return `<dialog id="stop-dialog" aria-labelledby="stop-dialog-title"><form id="stop-form" class="dialog-form" novalidate>
     <div class="dialog-heading"><p class="eyebrow danger-text">Preserve the handoff</p><h2 id="stop-dialog-title">Stop and remove ${escaped(med?.name ?? 'medicine')}?</h2><p>It will leave the current list, but this change stays in history.</p></div>
-    <label><span>What changed? <b aria-hidden="true">*</b></span><textarea name="reason" required maxlength="300" rows="3" placeholder="For example, stopped by Dr. Lee on 28 Aug"></textarea></label>
+    <label><span>What changed? <b aria-hidden="true">*</b></span><textarea name="reason" required maxlength="300" rows="3" aria-describedby="stop-reason-error" placeholder="For example, stopped by Dr. Lee on 28 Aug"></textarea></label><p class="field-error" id="stop-reason-error" data-field-error="reason" role="alert" hidden></p>
     <div class="form-actions"><button class="button danger" type="submit">Stop & remove</button><button class="button quiet" type="button" data-close-dialog>Keep medicine</button></div>
   </form></dialog>`;
 }
 
 function confirmDialog(): string {
-  return `<dialog id="confirm-dialog" aria-labelledby="confirm-dialog-title"><form id="confirm-form" class="dialog-form">
+  return `<dialog id="confirm-dialog" aria-labelledby="confirm-dialog-title"><form id="confirm-form" class="dialog-form" novalidate>
     <div class="dialog-heading"><p class="eyebrow">Date the handoff</p><h2 id="confirm-dialog-title">Confirm the current list</h2><p>Only confirm after checking every medicine, dose, and timing against a reliable source.</p></div>
-    <label><span>Confirmed by <b aria-hidden="true">*</b></span><input name="confirmedBy" required maxlength="80" autocomplete="name" value="${escaped(state.profile.caregiverName)}"></label>
-    <label class="check-label"><input type="checkbox" name="checked" required><span>I checked all ${state.medications.length} current ${state.medications.length === 1 ? 'medicine' : 'medicines'}.</span></label>
+    <label><span>Confirmed by <b aria-hidden="true">*</b></span><input name="confirmedBy" required maxlength="80" autocomplete="name" aria-describedby="confirm-by-error" value="${escaped(state.profile.caregiverName)}"></label><p class="field-error" id="confirm-by-error" data-field-error="confirmedBy" role="alert" hidden></p>
+    <label class="check-label"><input type="checkbox" name="checked" required aria-describedby="confirm-checked-error"><span>I checked all ${state.medications.length} current ${state.medications.length === 1 ? 'medicine' : 'medicines'}.</span></label><p class="field-error" id="confirm-checked-error" data-field-error="checked" role="alert" hidden></p>
     <div class="form-actions"><button class="button success" type="submit">${icon('check')} Confirm today</button><button class="button quiet" type="button" data-close-dialog>Cancel</button></div>
   </form></dialog>`;
 }
@@ -455,7 +455,53 @@ async function importBackup(file: File): Promise<void> {
   announce('Backup restored on this device.');
 }
 
+type RequiredField = { name: string; message: string };
+type FormControl = HTMLInputElement | HTMLTextAreaElement;
+
+function fieldControl(form: HTMLFormElement, name: string): FormControl | null {
+  const control = form.elements.namedItem(name);
+  return control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement ? control : null;
+}
+
+function setFieldError(form: HTMLFormElement, control: FormControl, message: string): void {
+  control.setCustomValidity(message);
+  if (message) control.setAttribute('aria-invalid', 'true');
+  else control.removeAttribute('aria-invalid');
+  const messageElement = form.querySelector<HTMLElement>(`[data-field-error="${control.name}"]`);
+  if (messageElement) {
+    messageElement.textContent = message;
+    messageElement.hidden = !message;
+  }
+}
+
+function validateRequiredFields(form: HTMLFormElement, fields: RequiredField[]): boolean {
+  let firstInvalid: FormControl | null = null;
+  for (const field of fields) {
+    const control = fieldControl(form, field.name);
+    if (!control) continue;
+    const present = control instanceof HTMLInputElement && control.type === 'checkbox' ? control.checked : control.value.trim().length > 0;
+    const message = present ? '' : field.message;
+    setFieldError(form, control, message);
+    if (message && !firstInvalid) firstInvalid = control;
+  }
+  if (!firstInvalid) return true;
+  firstInvalid.focus();
+  firstInvalid.reportValidity();
+  return false;
+}
+
+function clearFieldErrorWhenCorrected(form: HTMLFormElement): void {
+  form.querySelectorAll<FormControl>('input[required], textarea[required]').forEach((control) => {
+    const eventName = control instanceof HTMLInputElement && control.type === 'checkbox' ? 'change' : 'input';
+    control.addEventListener(eventName, () => {
+      const present = control instanceof HTMLInputElement && control.type === 'checkbox' ? control.checked : control.value.trim().length > 0;
+      if (present) setFieldError(form, control, '');
+    });
+  });
+}
+
 function bindEvents(): void {
+  document.querySelectorAll<HTMLFormElement>('#profile-form, #medicine-form, #stop-form, #confirm-form').forEach(clearFieldErrorWhenCorrected);
   document.querySelectorAll<HTMLButtonElement>('#theme-toggle, #theme-toggle-settings').forEach((button) => button.addEventListener('click', toggleTheme));
   document.querySelector<HTMLButtonElement>('#reload-button')?.addEventListener('click', () => location.reload());
   document.querySelector<HTMLButtonElement>('#reset-record')?.addEventListener('click', async () => {
@@ -485,14 +531,22 @@ function bindEvents(): void {
 
   document.querySelector<HTMLFormElement>('#profile-form')?.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget as HTMLFormElement);
+    const form = event.currentTarget as HTMLFormElement;
+    if (!validateRequiredFields(form, [{ name: 'personName', message: 'Enter the card owner’s name, not only spaces.' }])) return;
+    const data = new FormData(form);
     state.profile = { ...state.profile, personName: String(data.get('personName')).trim(), caregiverName: String(data.get('caregiverName')).trim(), updatedAt: isoNow() };
     try { await saveProfile(state.profile); state.profileEditing = false; render(); announce('Card names saved.'); } catch (error) { state.error = error instanceof Error ? error.message : 'Could not save the names.'; render(); }
   });
 
   document.querySelector<HTMLFormElement>('#medicine-form')?.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget as HTMLFormElement);
+    const form = event.currentTarget as HTMLFormElement;
+    if (!validateRequiredFields(form, [
+      { name: 'name', message: 'Enter a medicine name, not only spaces.' },
+      { name: 'dose', message: 'Enter a dose or strength, not only spaces.' },
+      { name: 'timing', message: 'Enter when this medicine is taken, not only spaces.' }
+    ])) return;
+    const data = new FormData(form);
     const now = isoNow();
     const previous = state.editingMedication;
     const medication: Medication = {
@@ -507,8 +561,10 @@ function bindEvents(): void {
   document.querySelector<HTMLFormElement>('#stop-form')?.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!state.stoppingMedication) return;
+    const form = event.currentTarget as HTMLFormElement;
+    if (!validateRequiredFields(form, [{ name: 'reason', message: 'Describe what changed, not only spaces.' }])) return;
     const medicine = state.stoppingMedication;
-    const reason = String(new FormData(event.currentTarget as HTMLFormElement).get('reason')).trim();
+    const reason = String(new FormData(form).get('reason')).trim();
     try {
       await addChange({ id: uid(), kind: 'stopped', medicineId: medicine.id, title: `${medicine.name} stopped`, details: reason, by: state.profile.caregiverName, at: isoNow() });
       await removeMedication(medicine.id); await refreshData(); closeDialog(); announce(`${medicine.name} removed; the change is preserved.`);
@@ -517,7 +573,12 @@ function bindEvents(): void {
 
   document.querySelector<HTMLFormElement>('#confirm-form')?.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const confirmedBy = String(new FormData(event.currentTarget as HTMLFormElement).get('confirmedBy')).trim();
+    const form = event.currentTarget as HTMLFormElement;
+    if (!validateRequiredFields(form, [
+      { name: 'confirmedBy', message: 'Enter who checked the list, not only spaces.' },
+      { name: 'checked', message: 'Check the box after reviewing the current list.' }
+    ])) return;
+    const confirmedBy = String(new FormData(form).get('confirmedBy')).trim();
     const now = isoNow();
     state.profile = { ...state.profile, lastConfirmed: now, confirmedBy, updatedAt: now };
     try { await saveProfile(state.profile); await addChange({ id: uid(), kind: 'confirmed', title: 'Current list confirmed', details: `${state.medications.length} ${state.medications.length === 1 ? 'medicine' : 'medicines'} checked.`, by: confirmedBy, at: now }); await refreshData(); closeDialog(); announce('Current list confirmed and dated.'); } catch (error) { state.error = error instanceof Error ? error.message : 'Could not confirm the list.'; closeDialog(); }

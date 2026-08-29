@@ -31,4 +31,11 @@ describe('backup validation', () => {
     expect(isBackupData({ ...valid, exportedAt: 'yesterday' })).toBe(false);
     expect(isBackupData({ ...valid, medications: [valid.medications[0], valid.medications[0]] })).toBe(false);
   });
+
+  it('rejects whitespace-only values for required medication fields', () => {
+    expect(isBackupData({
+      ...valid,
+      medications: [{ ...valid.medications[0], name: '   ', dose: '\t', timing: '  ' }]
+    })).toBe(false);
+  });
 });

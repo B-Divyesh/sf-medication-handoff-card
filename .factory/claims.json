@@ -28,6 +28,13 @@
     "sandbox": "Fresh /demo flow downloads JSON, uploads a valid backup, accepts the replacement confirmation, and observes restored data."
   },
   {
+    "id": "full-history-backup",
+    "claim": "All history is included in backups, even when only the latest 20 entries are shown.",
+    "where": "Change history notice",
+    "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:full-history-backup",
+    "sandbox": "Fresh /demo flow creates 21 edits, observes the 20-entry notice, downloads JSON, and asserts all 23 sample-plus-edit history entries are present."
+  },
+  {
     "id": "print-card",
     "claim": "The current list appears on a one-page print/PDF handoff card.",
     "where": "Print / PDF button, README",
