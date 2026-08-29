@@ -7,11 +7,25 @@ const STORES = ['profile', 'medications', 'changes'] as const;
 type StoreName = (typeof STORES)[number];
 
 let database: Promise<IDBDatabase> | undefined;
+let storageName = DB_NAME;
+
+/**
+ * Demo records deliberately live in a different IndexedDB database. This is
+ * set before the first database read, so a demo can never read or overwrite a
+ * person's regular card.
+ */
+export function useStorageNamespace(namespace: 'real' | 'demo'): void {
+  const nextName = namespace === 'demo' ? `demo:${DB_NAME}` : DB_NAME;
+  if (storageName !== nextName) {
+    storageName = nextName;
+    database = undefined;
+  }
+}
 
 function openDatabase(): Promise<IDBDatabase> {
   if (database) return database;
   database = new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    const request = indexedDB.open(storageName, DB_VERSION);
     request.onupgradeneeded = () => {
       const db = request.result;
       if (!db.objectStoreNames.contains('profile')) db.createObjectStore('profile', { keyPath: 'id' });
@@ -80,5 +94,16 @@ export async function replaceAll(data: BackupData): Promise<void> {
     transaction.oncomplete = () => resolve();
     transaction.onerror = () => reject(transaction.error ?? new Error('Could not restore this backup.'));
     transaction.onabort = () => reject(transaction.error ?? new Error('Restore was cancelled.'));
+  });
+}
+
+export async function clearAll(): Promise<void> {
+  const db = await openDatabase();
+  const transaction = db.transaction([...STORES], 'readwrite');
+  for (const name of STORES) transaction.objectStore(name).clear();
+  await new Promise<void>((resolve, reject) => {
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error ?? new Error('Could not reset local storage.'));
+    transaction.onabort = () => reject(transaction.error ?? new Error('Could not reset local storage.'));
   });
 }

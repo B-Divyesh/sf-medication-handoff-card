@@ -1,7 +1,7 @@
-const VERSION = 'mhc-v2';
+const VERSION = 'mhc-v3';
 const SHELL_CACHE = `${VERSION}-shell`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
-const SHELL = ['/offline.html', '/manifest.webmanifest', '/assets/icon-192.png', '/assets/icon-512.png', '/assets/hero-kitchen-table-640.webp', '/assets/hero-kitchen-table-1280.webp', '/assets/hero-kitchen-table.jpg'];
+const SHELL = ['/offline.html', '/offline.css', '/manifest.webmanifest', '/assets/icon-192.png', '/assets/icon-512.png', '/assets/hero-kitchen-table-640.webp', '/assets/hero-kitchen-table-1280.webp', '/assets/hero-kitchen-table.jpg'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {

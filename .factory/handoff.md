@@ -1,51 +1,68 @@
-# Medication Handoff Card — verification handoff
+# Medication Handoff Card — repair handoff
 
-## Release status: FAIL
+## Release status
 
-Independent verification on 2026-08-29 UTC rejects candidate
-`67399cd635f62e9ead77f435211678763b95232f` at
-https://medication-handoff-card.sociobot.in.
+**Ready for static deployment verification.** This repair addresses every
+finding in independent verification report `6d9c643cb4584a2c82ac8e64025ebe4e8ccca087`
+for candidate `67399cd635f62e9ead77f435211678763b95232f`.
 
-The full evidence and exact defects are in `.factory/verification.md`.
+## Repairs made
 
-## Blocking findings
+- Added `.factory/claims.json` with seven public claims and one exact tagged
+  Playwright regression command for each.
+- Added the one-click `/demo` and `?demo=1` sandbox. It seeds Evelyn Parker's
+  realistic three-medicine card in IndexedDB database
+  `demo:medication-handoff-card`, never opens the real-card database in demo
+  mode, and has a persistent banner with Reset demo and Start for real.
+- Rewrote the first screen with the caregiver/adult-child audience, clear
+  handoff result, and visible **Try it with sample data** action. Route titles
+  now follow the required home and demo contracts.
+- Added `public/staticwebapp.config.json`: enforced restrictive CSP,
+  `frame-ancestors` response-header policy, immutable cache policy for hashed
+  assets, manifest MIME type, route fallback exclusions, and a designed 404
+  response. Added self-hosted 404 and offline styles so the CSP causes no
+  inline-style errors.
+- Added a Tab focus trap, Escape handling, and focus return for native modal
+  dialogs. Saving, stopping, confirming, restoring, and cancelling now return
+  focus to the invoking control.
+- Added `/demo` to the sitemap, bumped the PWA cache/start URL version, and
+  documented the sample namespace in `.factory/demo.md`.
 
-1. `.factory/claims.json` is missing. Consequently the mandatory clean-demo
-   claim tests do not exist and no public product claim has required coverage.
-2. The live first screen has no one-click “Try it with sample data” action.
-   `/demo` is the ordinary empty app, not an isolated sample-data sandbox, and
-   there is no demo banner/reset/start-for-real flow or `.factory/demo.md`.
+## Verification evidence
 
-## Verification performed
+Performed in a clean dependency install on 2026-08-29 UTC:
 
-- Clean install: `npm ci` passed.
-- Full suite: `npm test` passed (2 Vitest + 10 Playwright), but it is not a
-  substitute for the missing claims tests.
-- Production build: `npm run build` passed and produced `dist/`.
-- Live assets were byte-identical to this build; this is a candidate defect,
-  not a stale/deployment-only failure.
-- Exercised create/edit/confirm/export/import/invalid-backup recovery,
-  desktop and 390 px mobile, keyboard/focus, privacy request logging, headers,
-  offline reload, service-worker update simulation, print media, axe, and
-  Lighthouse.
+| Check | Evidence |
+| --- | --- |
+| Clean install | `npm ci` completed; 0 vulnerabilities reported. |
+| Type/lint | `npm run lint` passed (`tsc --noEmit`). |
+| Unit/config | `npm run test:unit` passed: 4 tests, including CSP/cache/MIME/404 configuration regressions and encrypted-backup crypto tests. |
+| Browser integration | `npm test` passed: 4 unit tests plus 26 Playwright checks. Desktop and exact 390×844 mobile passed core create/edit/confirm/stop/import/export/paid flow, all seven claim tests, offline reload, PWA update behavior, print media, titles, console clean load, and no horizontal overflow. |
+| Accessibility | Axe via Playwright reported zero serious/critical findings for home, Privacy, and Terms on desktop and 390 px. Keyboard regression tabs forward and reverse inside the medicine dialog. |
+| Privacy | The `@claim:local-record` demo edit request log contained only `http://127.0.0.1:4173` requests. No health record request is sent to a third party during normal use. |
+| Offline/update | `@claim:offline-reload` waited for the service-worker controller, went offline, reloaded `/demo`, and retained Evelyn Parker's sample card plus offline banner. Shell version is `mhc-v3`; offline CSS is precached. |
+| Production build | `npm run build` passed and produced `dist/` with root `index.html`. Main JS: 35.65 kB (11.57 kB gzip); CSS: 17.42 kB (4.75 kB gzip). |
+| Browser smoke | `/opt/fleet/lib/verify-url.sh http://127.0.0.1:4173 /tmp/mhc-verify` passed: title, `lang=en`, one h1, main landmark, image alt text, labelled buttons, and no console errors. |
+| Lighthouse mobile | Local production preview: Performance 100, Accessibility 100, Best Practices 100, SEO 100; FCP 1.0 s, LCP 1.9 s, CLS 0. |
 
-## Additional defects
+All claim commands are declared in `.factory/claims.json`, for example
+`npm run test:e2e -- --grep @claim:offline-reload`.
 
-- P1: no enforced Content-Security-Policy response header.
-- P2: title contract failure; no real 404; 30-second non-immutable caching for
-  hashed assets/PWA files; manifest has `application/octet-stream`; modal tab
-  focus briefly reaches `body`.
+## Run and deploy
 
-## Positive verification evidence
+```sh
+npm ci
+npm test
+npm run build
+```
 
-The core local-first workflow, offline reload, service-worker update notice,
-print card, no-third-party normal-flow request log, and serious/critical axe
-checks passed. Lighthouse mobile measured 94 performance, 100 accessibility,
-100 best practices, and 100 SEO. The license verification endpoint rate-limits
-after 30 requests (request 31: `429 Retry-After: 4`).
+Deploy `dist/` as the existing static PWA artifact. The included
+`staticwebapp.config.json` is the deployment configuration and must be shipped
+at the root of `dist/`; it supplies the production security, cache, MIME, and
+404 policies.
 
-## Next steps
+## Known gaps
 
-Implement the claim contract and isolated demo first, then resolve the security,
-route/title, cache/MIME, and dialog-focus findings listed in
-`.factory/verification.md`. Re-run independent verification from a clean clone.
+None in the repaired product. The optional paid-license verification depends
+on the documented Sociobot billing endpoint; all free local-first workflows,
+demo behavior, and offline use work without it.

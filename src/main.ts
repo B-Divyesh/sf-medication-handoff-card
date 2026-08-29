@@ -1,5 +1,5 @@
 import './styles.css';
-import { addChange, getChanges, getMedications, getProfile, removeMedication, replaceAll, saveMedication, saveProfile } from './db';
+import { addChange, clearAll, getChanges, getMedications, getProfile, removeMedication, replaceAll, saveMedication, saveProfile, useStorageNamespace } from './db';
 import { decryptBackup, encryptBackup } from './crypto';
 import { blankProfile, type BackupData, type ChangeEntry, type Medication, type Profile } from './types';
 import { cachedUnlock, captureReturnedLicense, checkoutUrl, storeLicense, verifyLicense } from './license';
@@ -17,6 +17,8 @@ interface AppState {
   paid: boolean;
   notice: string;
   error: string;
+  demo: boolean;
+  returnFocus?: string;
 }
 
 const state: AppState = {
@@ -27,7 +29,8 @@ const state: AppState = {
   openDialog: null,
   paid: cachedUnlock(),
   notice: '',
-  error: ''
+  error: '',
+  demo: false
 };
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
@@ -35,6 +38,22 @@ const escaped = (value: string) => value.replace(/[&<>'"]/g, (character) => ({ '
 const displayDate = (value: string, withTime = false) => value ? new Intl.DateTimeFormat(undefined, withTime ? { dateStyle: 'medium', timeStyle: 'short' } : { dateStyle: 'medium' }).format(new Date(value)) : 'Not yet confirmed';
 const isoNow = () => new Date().toISOString();
 const uid = () => crypto.randomUUID();
+
+function sampleBackup(): BackupData {
+  const created = '2026-08-26T14:30:00.000Z';
+  const confirmed = '2026-08-28T09:15:00.000Z';
+  const profile: Profile = { id: 'profile', personName: 'Evelyn Parker', caregiverName: 'Jordan Parker', lastConfirmed: confirmed, confirmedBy: 'Jordan Parker', updatedAt: confirmed };
+  const lisinopril: Medication = { id: 'sample-lisinopril', name: 'Lisinopril', dose: '10 mg', timing: 'Each morning', prescriber: 'Dr. Nina Shah', notes: 'Take as listed on the pharmacy label.', createdAt: created, updatedAt: created };
+  const metformin: Medication = { id: 'sample-metformin', name: 'Metformin ER', dose: '500 mg', timing: 'With evening meal', prescriber: 'Dr. Nina Shah', notes: '', createdAt: created, updatedAt: created };
+  const vitamin: Medication = { id: 'sample-vitamin-d', name: 'Vitamin D3', dose: '1,000 IU', timing: 'Each morning', prescriber: 'Not recorded', notes: 'Over-the-counter item.', createdAt: created, updatedAt: created };
+  return {
+    format: 'medication-handoff-card', version: 1, exportedAt: confirmed, profile, medications: [lisinopril, metformin, vitamin],
+    changes: [
+      { id: 'sample-confirmed', kind: 'confirmed', title: 'Current list confirmed', details: '3 medicines checked.', by: 'Jordan Parker', at: confirmed },
+      { id: 'sample-added', kind: 'added', medicineId: vitamin.id, title: 'Vitamin D3 added', details: '1,000 IU · Each morning', by: 'Jordan Parker', at: created }
+    ]
+  };
+}
 
 function icon(name: 'plus' | 'print' | 'settings' | 'edit' | 'stop' | 'check' | 'lock' | 'download' | 'moon'): string {
   const paths = {
@@ -56,6 +75,7 @@ function legalPage(kind: 'privacy' | 'terms'): string {
   return `
     <header class="site-header legal-header">
       <a class="brand" href="/" aria-label="Medication Handoff Card home"><span class="brand-mark" aria-hidden="true">M</span><span>Medication Handoff Card</span></a>
+      <nav class="site-nav" aria-label="Main navigation"><a href="/demo">Try demo</a><a href="/privacy">Privacy</a></nav>
       <button class="icon-button" id="theme-toggle" type="button">${icon('moon')}<span>Theme</span></button>
     </header>
     <main id="main-content" class="legal-page">
@@ -65,7 +85,7 @@ function legalPage(kind: 'privacy' | 'terms'): string {
         <p class="lede">Your medication record stays in this browser unless you choose to export it.</p>
         <h2>What is stored</h2><p>Names, medication details, confirmation details, and change history are stored in IndexedDB on your device. Your theme choice and optional license token are stored in localStorage.</p>
         <h2>What leaves your device</h2><p>The record itself is never sent to us. When you verify a paid license, only the license token is sent to the Sociobot billing API. The hosted checkout is operated by Sociobot, with Dodo as merchant of record, under their payment privacy terms.</p>
-        <h2>Exports and deletion</h2><p>Downloaded backups are controlled by you. Plain JSON backups are readable files; encrypted backups use your passphrase, which we cannot recover. Clear this site's storage in your browser to delete the local record.</p>
+        <h2>Exports and deletion</h2><p>Downloaded backups are controlled by you. Plain JSON backups are readable files. Encrypted backups use your passphrase, which we cannot recover. Clear this site's storage in your browser to delete the local record.</p>
         <h2>Analytics and health data</h2><p>This app includes no advertising, tracking SDK, analytics script, cloud account, or health-data upload. Your browser or hosting provider may keep standard short-lived request logs.</p>
       ` : `
         <p class="lede">This tool helps people communicate a medication list. It does not provide healthcare.</p>
@@ -79,7 +99,7 @@ function legalPage(kind: 'privacy' | 'terms'): string {
 }
 
 function footer(): string {
-  return `<footer><p>Private by design. Your health record stays on this device.</p><nav aria-label="Legal"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="https://github.com/B-Divyesh/sf-medication-handoff-card" rel="noreferrer">Source</a></nav><p class="generation-note">Scene generated for this product; no person or brand is depicted.</p></footer>`;
+  return `<footer><p>Your health record stays in this browser during normal use.</p><nav aria-label="Legal"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="https://github.com/B-Divyesh/sf-medication-handoff-card" rel="noreferrer">Source</a></nav><p class="generation-note">Scene generated for this product; no person or brand is depicted. Built by Param Factory · v1.0.1</p></footer>`;
 }
 
 function profileSection(): string {
@@ -160,7 +180,7 @@ function settingsDialog(): string {
   return `<dialog id="settings-dialog" class="wide-dialog" aria-labelledby="settings-title"><div class="dialog-form">
     <div class="dialog-heading"><p class="eyebrow">Your data, your copy</p><h2 id="settings-title">Backup & settings</h2><p>Backups include the card owner, current medicines, and full change history.</p></div>
     <section class="settings-section" aria-labelledby="plain-backup"><h3 id="plain-backup">Free backup</h3><p>Plain JSON is readable and portable. Store it somewhere private.</p><div class="inline-actions"><button class="button secondary" type="button" id="export-json">${icon('download')} Download JSON</button><label class="button quiet file-button">Restore a backup<input id="import-file" type="file" accept=".json,.mhc,application/json"></label></div></section>
-    <section class="settings-section paid-section" aria-labelledby="secure-backup"><div class="paid-heading"><div><p class="eyebrow">One-time unlock · $12</p><h3 id="secure-backup">Encrypted backup</h3></div><span class="status-chip ${state.paid ? 'unlocked' : ''}">${state.paid ? 'Unlocked' : `${icon('lock')} Locked`}</span></div><p>Protect a backup with a passphrase using AES-256 encryption. Core records, printing, and plain backup stay free.</p>
+    <section class="settings-section paid-section" aria-labelledby="secure-backup"><div class="paid-heading"><div><p class="eyebrow">One-time unlock · $12</p><h3 id="secure-backup">Encrypted backup</h3></div><span class="status-chip ${state.paid ? 'unlocked' : ''}">${state.paid ? 'Unlocked' : `${icon('lock')} Locked`}</span></div><p>Protect a backup with a passphrase. Core records, printing, and plain backup stay free.</p>
       ${state.paid ? `<label><span>Backup passphrase</span><input id="backup-passphrase" type="password" minlength="10" autocomplete="new-password" placeholder="At least 10 characters"><small>We cannot recover this passphrase.</small></label><button class="button primary" type="button" id="export-encrypted">${icon('lock')} Download encrypted backup</button>` : `<a class="button primary" href="${checkoutUrl}">Unlock encrypted backups — $12</a><form id="license-form" class="license-form"><label><span>Already purchased? Paste your license</span><input name="license" required autocomplete="off" spellcheck="false"></label><button class="button secondary" type="submit">Verify license</button></form>`}
       <p class="fine-print">One-time purchase. Sociobot/Dodo is the merchant of record and handles refunds. <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></p>
     </section>
@@ -178,10 +198,11 @@ function printSheet(): string {
 }
 
 function appPage(): string {
-  return `<header class="site-header"><a class="brand" href="/" aria-label="Medication Handoff Card home"><span class="brand-mark" aria-hidden="true">M</span><span>Medication Handoff Card</span></a><div class="header-actions"><button class="icon-button" type="button" id="print-button" ${!state.profile.personName ? 'disabled' : ''}>${icon('print')}<span>Print / PDF</span></button><button class="icon-button" type="button" data-open-settings>${icon('settings')}<span>Backup & settings</span></button></div></header>
+  return `<header class="site-header"><a class="brand" href="/" aria-label="Medication Handoff Card home"><span class="brand-mark" aria-hidden="true">M</span><span>Medication Handoff Card</span></a><nav class="site-nav" aria-label="Main navigation"><a href="/demo">Try demo</a><a href="/privacy">Privacy</a></nav><div class="header-actions"><button class="icon-button" type="button" id="print-button" ${!state.profile.personName ? 'disabled' : ''}>${icon('print')}<span>Print / PDF</span></button><button class="icon-button" type="button" data-open-settings>${icon('settings')}<span>Backup & settings</span></button></div></header>
     <div id="offline-banner" class="offline-banner" hidden><strong>Offline:</strong> your card still works and saves on this device.</div>
+    ${state.demo ? `<aside class="demo-banner" aria-label="Demo mode"><span><strong>Demo — sample data, nothing is saved to your real card.</strong> Try editing Evelyn Parker’s example list.</span><span class="demo-actions"><button class="text-button" type="button" id="reset-demo">Reset demo</button><a class="text-button" href="/" id="start-real">Start for real</a></span></aside>` : ''}
     <main id="main-content">
-      <section class="masthead"><div><p class="eyebrow">A dated list for the next handoff</p><h1>Keep the facts together when medicines change.</h1><p class="lede">Record the current list, who checked it, and what changed—then hand family or clinicians a clear one-page card.</p></div><div class="privacy-seal"><span aria-hidden="true">●</span><strong>Stays on this device</strong><small>No account. Works offline.</small></div></section>
+      <section class="masthead"><div><p class="eyebrow">A dated list for the next handoff</p><h1>Make a clear medication handoff card.</h1><p class="lede">For adult children, caregivers, and older adults sharing a checked list with family or clinicians.</p>${state.demo ? '<p class="demo-intro">This sample is separate from your own card. Reset it any time.</p>' : '<p class="masthead-action"><a class="button primary" href="/demo">Try it with sample data</a><span>See a completed card for Evelyn Parker.</span></p>'}</div><div class="privacy-seal"><span aria-hidden="true">●</span><strong>Stays in this browser</strong><small>Works offline after the first visit.</small></div></section>
       <aside class="safety-note" aria-label="Important safety information"><strong>Communication tool, not medical advice.</strong><span>No interaction checks or dose recommendations. Confirm every change with a qualified clinician or pharmacist.</span></aside>
       ${profileSection()}
       ${state.error ? `<div class="error-banner" role="alert"><strong>Something went wrong.</strong> ${escaped(state.error)} <button class="text-button" type="button" id="reload-button">Reload</button></div>` : ''}
@@ -210,12 +231,16 @@ function toggleTheme(): void {
 function render(): void {
   const route = location.pathname.replace(/\/$/, '') || '/';
   app.innerHTML = route === '/privacy' ? legalPage('privacy') : route === '/terms' ? legalPage('terms') : appPage();
-  document.title = route === '/privacy' ? 'Privacy — Medication Handoff Card' : route === '/terms' ? 'Terms — Medication Handoff Card' : 'Medication Handoff Card';
+  document.title = route === '/privacy' ? 'Privacy — Medication Handoff Card' : route === '/terms' ? 'Terms — Medication Handoff Card' : state.demo ? 'Demo — Medication Handoff Card' : 'Medication Handoff Card — share a clear medicine list';
   bindEvents();
   updateOnlineState();
   if (state.openDialog) {
     const dialog = document.querySelector<HTMLDialogElement>(`#${state.openDialog}-dialog`);
-    dialog?.showModal();
+    if (dialog) {
+      dialog.showModal();
+      keepFocusInDialog(dialog);
+      window.setTimeout(() => dialog.querySelector<HTMLElement>('input, textarea, button, [href]')?.focus(), 0);
+    }
   }
 }
 
@@ -226,12 +251,34 @@ function announce(message: string): void {
   window.setTimeout(() => { if (state.notice === message) { state.notice = ''; if (toast) toast.hidden = true; } }, 4500);
 }
 
-function closeDialog(returnId?: string): void {
+function openDialog(name: Exclude<DialogName, null>, returnFocus: string): void {
+  state.returnFocus = returnFocus;
+  state.openDialog = name;
+  render();
+}
+
+function keepFocusInDialog(dialog: HTMLDialogElement): void {
+  dialog.addEventListener('cancel', (event) => { event.preventDefault(); closeDialog(); });
+  dialog.addEventListener('keydown', (event) => {
+    if (event.key !== 'Tab') return;
+    const focusable = [...dialog.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])')]
+      .filter((element) => !element.hasAttribute('hidden'));
+    if (!focusable.length) return;
+    const first = focusable[0]!;
+    const last = focusable[focusable.length - 1]!;
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+  });
+}
+
+function closeDialog(): void {
+  const returnFocus = state.returnFocus;
   state.openDialog = null;
   state.editingMedication = undefined;
   state.stoppingMedication = undefined;
+  state.returnFocus = undefined;
   render();
-  if (returnId) document.querySelector<HTMLElement>(returnId)?.focus();
+  if (returnFocus) document.querySelector<HTMLElement>(returnFocus)?.focus();
 }
 
 async function refreshData(): Promise<void> {
@@ -272,8 +319,7 @@ async function importBackup(file: File): Promise<void> {
   if (!confirm(`Replace this device’s record with the backup for ${data.profile.personName || 'an unnamed person'}? This cannot be undone.`)) return;
   await replaceAll(data);
   await refreshData();
-  state.openDialog = null;
-  render();
+  closeDialog();
   announce('Backup restored on this device.');
 }
 
@@ -281,14 +327,21 @@ function bindEvents(): void {
   document.querySelectorAll<HTMLButtonElement>('#theme-toggle, #theme-toggle-settings').forEach((button) => button.addEventListener('click', toggleTheme));
   document.querySelector<HTMLButtonElement>('#reload-button')?.addEventListener('click', () => location.reload());
   document.querySelector<HTMLButtonElement>('#print-button')?.addEventListener('click', () => window.print());
-  document.querySelectorAll<HTMLElement>('[data-open-settings]').forEach((button) => button.addEventListener('click', () => { state.openDialog = 'settings'; render(); }));
-  document.querySelectorAll<HTMLElement>('[data-add-medication]').forEach((button) => button.addEventListener('click', () => { state.editingMedication = undefined; state.openDialog = 'medicine'; render(); }));
-  document.querySelectorAll<HTMLElement>('[data-edit-medication]').forEach((button) => button.addEventListener('click', () => { state.editingMedication = state.medications.find((item) => item.id === button.dataset.editMedication); state.openDialog = 'medicine'; render(); }));
-  document.querySelectorAll<HTMLElement>('[data-stop-medication]').forEach((button) => button.addEventListener('click', () => { state.stoppingMedication = state.medications.find((item) => item.id === button.dataset.stopMedication); state.openDialog = 'stop'; render(); }));
-  document.querySelector<HTMLElement>('[data-confirm-list]')?.addEventListener('click', () => { state.openDialog = 'confirm'; render(); });
+  document.querySelectorAll<HTMLElement>('[data-open-settings]').forEach((button) => button.addEventListener('click', () => openDialog('settings', '[data-open-settings]')));
+  document.querySelectorAll<HTMLElement>('[data-add-medication]').forEach((button) => button.addEventListener('click', () => { state.editingMedication = undefined; openDialog('medicine', '[data-add-medication]'); }));
+  document.querySelectorAll<HTMLElement>('[data-edit-medication]').forEach((button) => button.addEventListener('click', () => { state.editingMedication = state.medications.find((item) => item.id === button.dataset.editMedication); openDialog('medicine', `[data-edit-medication="${button.dataset.editMedication}"]`); }));
+  document.querySelectorAll<HTMLElement>('[data-stop-medication]').forEach((button) => button.addEventListener('click', () => { state.stoppingMedication = state.medications.find((item) => item.id === button.dataset.stopMedication); openDialog('stop', `[data-stop-medication="${button.dataset.stopMedication}"]`); }));
+  document.querySelector<HTMLElement>('[data-confirm-list]')?.addEventListener('click', () => openDialog('confirm', '[data-confirm-list]'));
   document.querySelector<HTMLElement>('[data-edit-profile]')?.addEventListener('click', () => { state.profileEditing = true; render(); document.querySelector<HTMLInputElement>('[name="personName"]')?.focus(); });
   document.querySelector<HTMLElement>('[data-cancel-profile]')?.addEventListener('click', () => { state.profileEditing = false; render(); });
   document.querySelectorAll<HTMLElement>('[data-close-dialog]').forEach((button) => button.addEventListener('click', () => closeDialog()));
+  document.querySelector<HTMLButtonElement>('#reset-demo')?.addEventListener('click', async () => {
+    await clearAll();
+    await replaceAll(sampleBackup());
+    await refreshData();
+    render();
+    announce('Demo reset to the sample card.');
+  });
 
   document.querySelector<HTMLFormElement>('#profile-form')?.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -308,7 +361,7 @@ function bindEvents(): void {
     };
     const changedFields = previous ? (['name', 'dose', 'timing', 'prescriber', 'notes'] as const).filter((key) => previous[key] !== medication[key]).map((key) => ({ name: 'medicine name', dose: 'dose', timing: 'timing', prescriber: 'prescriber', notes: 'notes' })[key]) : [];
     const change: ChangeEntry = { id: uid(), kind: previous ? 'updated' : 'added', medicineId: medication.id, title: previous ? `${medication.name} updated` : `${medication.name} added`, details: previous ? `Changed ${changedFields.join(', ') || 'record'}.` : `${medication.dose} · ${medication.timing}`, by: state.profile.caregiverName, at: now };
-    try { await saveMedication(medication); await addChange(change); await refreshData(); state.openDialog = null; state.editingMedication = undefined; render(); announce(previous ? `${medication.name} updated.` : `${medication.name} added.`); } catch (error) { state.error = error instanceof Error ? error.message : 'Could not save the medicine.'; state.openDialog = null; render(); }
+    try { await saveMedication(medication); await addChange(change); await refreshData(); closeDialog(); announce(previous ? `${medication.name} updated.` : `${medication.name} added.`); } catch (error) { state.error = error instanceof Error ? error.message : 'Could not save the medicine.'; closeDialog(); }
   });
 
   document.querySelector<HTMLFormElement>('#stop-form')?.addEventListener('submit', async (event) => {
@@ -318,8 +371,8 @@ function bindEvents(): void {
     const reason = String(new FormData(event.currentTarget as HTMLFormElement).get('reason')).trim();
     try {
       await addChange({ id: uid(), kind: 'stopped', medicineId: medicine.id, title: `${medicine.name} stopped`, details: reason, by: state.profile.caregiverName, at: isoNow() });
-      await removeMedication(medicine.id); await refreshData(); state.openDialog = null; state.stoppingMedication = undefined; render(); announce(`${medicine.name} removed; the change is preserved.`);
-    } catch (error) { state.error = error instanceof Error ? error.message : 'Could not remove the medicine.'; state.openDialog = null; render(); }
+      await removeMedication(medicine.id); await refreshData(); closeDialog(); announce(`${medicine.name} removed; the change is preserved.`);
+    } catch (error) { state.error = error instanceof Error ? error.message : 'Could not remove the medicine.'; closeDialog(); }
   });
 
   document.querySelector<HTMLFormElement>('#confirm-form')?.addEventListener('submit', async (event) => {
@@ -327,7 +380,7 @@ function bindEvents(): void {
     const confirmedBy = String(new FormData(event.currentTarget as HTMLFormElement).get('confirmedBy')).trim();
     const now = isoNow();
     state.profile = { ...state.profile, lastConfirmed: now, confirmedBy, updatedAt: now };
-    try { await saveProfile(state.profile); await addChange({ id: uid(), kind: 'confirmed', title: 'Current list confirmed', details: `${state.medications.length} ${state.medications.length === 1 ? 'medicine' : 'medicines'} checked.`, by: confirmedBy, at: now }); await refreshData(); state.openDialog = null; render(); announce('Current list confirmed and dated.'); } catch (error) { state.error = error instanceof Error ? error.message : 'Could not confirm the list.'; state.openDialog = null; render(); }
+    try { await saveProfile(state.profile); await addChange({ id: uid(), kind: 'confirmed', title: 'Current list confirmed', details: `${state.medications.length} ${state.medications.length === 1 ? 'medicine' : 'medicines'} checked.`, by: confirmedBy, at: now }); await refreshData(); closeDialog(); announce('Current list confirmed and dated.'); } catch (error) { state.error = error instanceof Error ? error.message : 'Could not confirm the list.'; closeDialog(); }
   });
 
   document.querySelector<HTMLButtonElement>('#export-json')?.addEventListener('click', () => { download(JSON.stringify(makeBackup(), null, 2), `medication-card-${new Date().toISOString().slice(0, 10)}.json`); announce('Plain backup downloaded.'); });
@@ -361,9 +414,16 @@ async function start(): Promise<void> {
   applyTheme();
   const route = location.pathname.replace(/\/$/, '') || '/';
   if (route === '/privacy' || route === '/terms') { render(); return; }
+  state.demo = route === '/demo' || new URLSearchParams(location.search).get('demo') === '1';
+  useStorageNamespace(state.demo ? 'demo' : 'real');
   const returned = captureReturnedLicense();
   try {
-    await refreshData(); render();
+    await refreshData();
+    if (state.demo && !state.profile.personName && !state.medications.length && !state.changes.length) {
+      await replaceAll(sampleBackup());
+      await refreshData();
+    }
+    render();
     if (returned) announce('License received. Verifying…');
     void verifyLicense(returned).then((result) => {
       const changed = state.paid !== result.valid;
