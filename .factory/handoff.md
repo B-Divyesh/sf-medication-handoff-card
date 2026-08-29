@@ -1,78 +1,51 @@
-# Medication Handoff Card — build handoff
+# Medication Handoff Card — verification handoff
 
-## Shipped
+## Release status: FAIL
 
-Finished v1 of the local-first medication handoff PWA:
+Independent verification on 2026-08-29 UTC rejects candidate
+`67399cd635f62e9ead77f435211678763b95232f` at
+https://medication-handoff-card.sociobot.in.
 
-- Card owner/keeper identity and a prominent non-clinical safety disclaimer.
-- Add, edit, and stop/remove medication flows for name, dose, timing,
-  prescriber, and notes; required fields use native validation.
-- Immutable visible history for additions, edits, stops, and dated whole-list
-  confirmations, including the person who confirmed it.
-- A large-type print/PDF view containing the current list, confirmation line,
-  print date, recent changes, and safety note.
-- IndexedDB persistence with JSON export/import and user-confirmed replacement.
-- Optional $12 one-time Sociobot unlock, return-token capture, once-daily
-  verification cache, paste-to-restore flow, and offline optimistic unlock.
-- Paid encrypted `.mhc` backups using AES-GCM/PBKDF2. Core data export,
-  accessibility, printing, and safety behavior remain free.
-- Installable PWA manifest, 192/512 maskable icon, versioned app-shell cache,
-  network-first navigation, cache-first assets, first-install offline support,
-  update notice, and dedicated offline fallback.
-- Responsive light/dark cinematic visual system, generated and reviewed hero,
-  reduced-motion fallback, 44 px targets, focus treatment, empty/error/offline
-  states, privacy/terms pages, sitemap, and robots policy.
+The full evidence and exact defects are in `.factory/verification.md`.
 
-## Verification
+## Blocking findings
 
-Run from a clean checkout:
+1. `.factory/claims.json` is missing. Consequently the mandatory clean-demo
+   claim tests do not exist and no public product claim has required coverage.
+2. The live first screen has no one-click “Try it with sample data” action.
+   `/demo` is the ordinary empty app, not an isolated sample-data sandbox, and
+   there is no demo banner/reset/start-for-real flow or `.factory/demo.md`.
 
-```sh
-npm ci
-npm test
-npm run build
-```
+## Verification performed
 
-Verified on 2026-08-28:
+- Clean install: `npm ci` passed.
+- Full suite: `npm test` passed (2 Vitest + 10 Playwright), but it is not a
+  substitute for the missing claims tests.
+- Production build: `npm run build` passed and produced `dist/`.
+- Live assets were byte-identical to this build; this is a candidate defect,
+  not a stale/deployment-only failure.
+- Exercised create/edit/confirm/export/import/invalid-backup recovery,
+  desktop and 390 px mobile, keyboard/focus, privacy request logging, headers,
+  offline reload, service-worker update simulation, print media, axe, and
+  Lighthouse.
 
-- `npm test`: 2 unit tests and 10 Playwright tests passed across desktop Chrome
-  and Pixel 5/mobile projects. Coverage includes create/edit/confirm/stop,
-  persistence, legal pages, paid license restoration, encrypted download, axe,
-  and `context.setOffline(true)` reload.
-- `npm run build`: passed; output is `dist/` with `dist/index.html` at root.
-- Production payload: 32.22 KB JavaScript (10.52 KB gzip), 16.60 KB CSS
-  (4.60 KB gzip), 22 KB mobile hero WebP / 76 KB large WebP. No fonts or
-  third-party runtime scripts.
-- Lighthouse mobile: **97 Performance, 100 Accessibility, 100 Best Practices,
-  100 SEO**; FCP 1.0 s, LCP 1.9 s, TBT 170 ms, CLS 0, total transfer 105 KiB.
-- Axe 4.10: no serious or critical findings on main or privacy screens in both
-  desktop and mobile projects.
-- Manual visual review: 390 px-style mobile layout, generated hero content, and
-  print stylesheet inspected; no browser console errors in the core test.
-- `npm audit --audit-level=high`: 0 vulnerabilities.
+## Additional defects
 
-Exact factory build command: `npm run build`
+- P1: no enforced Content-Security-Policy response header.
+- P2: title contract failure; no real 404; 30-second non-immutable caching for
+  hashed assets/PWA files; manifest has `application/octet-stream`; modal tab
+  focus briefly reaches `body`.
 
-Static deploy directory: `dist/`
+## Positive verification evidence
 
-## Known gaps / release steps
+The core local-first workflow, offline reload, service-worker update notice,
+print card, no-third-party normal-flow request log, and serious/critical axe
+checks passed. Lighthouse mobile measured 94 performance, 100 accessibility,
+100 best practices, and 100 SEO. The license verification endpoint rate-limits
+after 30 requests (request 31: `429 Retry-After: 4`).
 
-- The factory still needs to register `medication-handoff-card` and its $12
-  one-time price in the Sociobot billing engine. The UI intentionally uses the
-  slug-based production endpoint and contains no provider/product ID.
-- Browser print engines make final pagination decisions. The stylesheet is
-  designed for one page for ordinary household lists; very long notes or many
-  medicines may require a second page rather than shrinking into illegibility.
-- Data is intentionally device-local with no collaboration or sync. Users must
-  export a backup to move the record or protect against cleared browser data.
-- No interaction checking, medical recommendations, reminders, dispensing,
-  refills, or clinician integration are included by design.
+## Next steps
 
-## Asset provenance
-
-The hero was generated through the factory image deployment on 2026-08-28 and
-reviewed for text, logos, labels, people, and unintended medical claims. Source,
-exact prompt, and review notes are in `assets/src/`; shipped WebP derivatives
-are each below the 300 KB hero budget. The app icon is hand-authored from basic
-geometry and uses the product palette. Full rationale is in
-`.factory/design.md`.
+Implement the claim contract and isolated demo first, then resolve the security,
+route/title, cache/MIME, and dialog-focus findings listed in
+`.factory/verification.md`. Re-run independent verification from a clean clone.
