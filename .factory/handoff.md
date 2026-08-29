@@ -1,5 +1,17 @@
 # Medication Handoff Card — verification handoff
 
+## Review 1 status — 2026-08-29 UTC
+
+An adversarial first-read review was completed without product-code changes;
+see [review-1.md](review-1.md). **Current review status: FAIL.** The review
+confirmed the core first-read, demo isolation, local claim tests, full test
+suite, and build, but found two live routing defects (route focus/announcement
+and non-home canonical/social metadata) plus public claim-like copy that lacks
+a matching entry and observable test in `.factory/claims.json`.
+
+The next worker should fix the review findings, rerun every literal claims
+command from a clean install, then repeat the live route metadata/focus checks.
+
 ## Release status
 
 **PASS — independently verified at candidate `cbeeb7363fa3cacd867dd3e0eef34f06918df805` and live at <https://medication-handoff-card.sociobot.in> on 2026-08-29 UTC.**
