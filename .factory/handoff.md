@@ -37,7 +37,7 @@ Performed in a clean dependency install on 2026-08-29 UTC:
 | Clean install | `npm ci` completed; 0 vulnerabilities reported. |
 | Type/lint | `npm run lint` passed (`tsc --noEmit`). |
 | Unit/config | `npm run test:unit` passed: 4 tests, including CSP/cache/MIME/404 configuration regressions and encrypted-backup crypto tests. |
-| Browser integration | `npm test` passed: 4 unit tests plus 26 Playwright checks. Desktop and exact 390×844 mobile passed core create/edit/confirm/stop/import/export/paid flow, all seven claim tests, offline reload, PWA update behavior, print media, titles, console clean load, and no horizontal overflow. |
+| Browser integration | `npm test` passed: 4 unit tests plus 26 Playwright checks. Desktop and exact 390×844 mobile passed core create/edit/confirm/stop/import/export/paid flow, all seven claim tests, service-worker-controlled offline reload, print media, titles, console clean load, and no horizontal overflow. |
 | Accessibility | Axe via Playwright reported zero serious/critical findings for home, Privacy, and Terms on desktop and 390 px. Keyboard regression tabs forward and reverse inside the medicine dialog. |
 | Privacy | The `@claim:local-record` demo edit request log contained only `http://127.0.0.1:4173` requests. No health record request is sent to a third party during normal use. |
 | Offline/update | `@claim:offline-reload` waited for the service-worker controller, went offline, reloaded `/demo`, and retained Evelyn Parker's sample card plus offline banner. Shell version is `mhc-v3`; offline CSS is precached. |
