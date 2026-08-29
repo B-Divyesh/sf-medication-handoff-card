@@ -1,115 +1,44 @@
-# Medication Handoff Card — verification handoff
-
-## Review 1 status — 2026-08-29 UTC
-
-An adversarial first-read review was completed without product-code changes;
-see [review-1.md](review-1.md). **Current review status: FAIL.** The review
-confirmed the core first-read, demo isolation, local claim tests, full test
-suite, and build, but found two live routing defects (route focus/announcement
-and non-home canonical/social metadata) plus public claim-like copy that lacks
-a matching entry and observable test in `.factory/claims.json`.
-
-The next worker should fix the review findings, rerun every literal claims
-command from a clean install, then repeat the live route metadata/focus checks.
+# Medication Handoff Card — polish 1 handoff
 
 ## Release status
 
-**PASS — independently verified at candidate `cbeeb7363fa3cacd867dd3e0eef34f06918df805` and live at <https://medication-handoff-card.sociobot.in> on 2026-08-29 UTC.**
+**PASS.** The repair is deployed at <https://medication-handoff-card.sociobot.in> from application commit `865abe3` (`fix: version the repaired PWA shell`). The preceding repair commit is `14020a6` (`fix: complete routing and claim coverage`). Deployment `5dd6c7b8` completed successfully on 2026-08-29 UTC.
 
-The verifier report is [verification-3.md](verification-3.md). It confirms
-the deployed HTML, JS, CSS, worker, manifest, and 404 are byte-identical to a
-fresh build of this commit; this is not a deployment-only failure.
+This round resolves every finding in [review-1.md](review-1.md), including its P2/P3 items. Earlier reports ([verification.md](verification.md), [verification-2.md](verification-2.md), and [verification-3.md](verification-3.md)) were read as required; their previous demo, claim, CSP, 404, validation, contrast, focus-trap, mobile, service-worker, and checkout findings remain covered by the current suite. There are no known open findings.
 
-## Independent verification summary
+## What changed
 
-- All 10 literal clean-install commands in `.factory/claims.json` passed (2/2
-  browser projects each).
-- `npm test` passed (8 Vitest tests and 42 Playwright tests); `npm run lint`
-  and exact `npm run build` passed.
-- Independent live normal, invalid/recovery, backup/restore, print/PDF,
-  demo-isolation, desktop/mobile, keyboard, reduced-motion, axe, offline,
-  worker-update, privacy-request, header/cache, link, checkout, and rate-limit
-  checks passed.
-- Lighthouse mobile: Performance 99, Accessibility 100, Best Practices 100,
-  SEO 100; LCP 1.696 s and CLS 0.
-- No P0–P3 defects remain. The observed Sociobot verification allowance is 30
-  requests per client window; request 31 returns 429 with `Retry-After: 4`.
-
-This repair resolves every finding in verifier report commit
-`0cb17b26a572079c8cbb6484b8c1ce2567203708` for candidate
-`fcb4129dfb965e57c19d413c02d947f1459461f5`. The artifact remains a static,
-local-first PWA at <https://medication-handoff-card.sociobot.in>.
-
-## Repairs
-
-- Made every exact claims command self-installing from a fresh clone. Expanded
-  the manifest to ten public claims with exactly one tagged test each.
-- Strengthened the print claim to generate an A4 PDF and assert one page.
-  Strengthened demo reset to modify, reset, leave, and reopen the sandbox.
-- Registered the live $12 one-time product in Dodo and the Sociobot factory
-  product registry. The production checkout now redirects to a hosted session.
-- Added deep validation for profiles, medicines, history, dates, field sizes,
-  item limits, and duplicate IDs before any restore write. Invalid JSON now
-  gives a recovery instruction. Existing unreadable local records show a
-  confirmed reset path instead of trapping the app on its loading screen.
-- Added dark-theme foreground tokens for success, warning, and danger surfaces.
-  Populated dark demo axe checks now cover the original failures.
-- Replaced the catch-all SPA fallback with explicit `/demo`, `/privacy`, and
-  `/terms` rewrites. Unknown addresses now reach the designed 404 with status
-  404.
-- Clear demo IndexedDB before **Start for real**, add visible restore-file focus,
-  enforce 44 px navigation targets, wrap maximum-length content, and tolerate
-  missing or blocked service-worker registration.
-- Added the required three-step, privacy, and paid sections plus the first-screen
-  price fact. Added the authored SVG favicon, exact 180 px touch icon, and a
-  1200 × 630 crop of the original generated scene for social previews.
-- Removed deferred history rendering that left a large blank mobile region.
-  Updated copy, demo, design, claims, and README documentation.
+- Made same-origin route links real History API transitions. Every transition and Back/Forward focuses the page `<h1>`, restores the saved scroll position, and announces the destination through a persistent polite live region.
+- Added per-route title, canonical, description, Open Graph, and Twitter title and description for Home, Demo, Privacy, and Terms.
+- Kept the one-click demo at `/?demo=1` as well as `/demo`; it uses the isolated `demo:medication-handoff-card` database, shows the persistent banner, resets Evelyn Parker’s sample, and discards sample edits on exit.
+- Added five observable public claims (14 total) for free core features and price, the non-clinical boundary, no account/cloud copy, and readable JSON. Removed the untestable recovery/storage promise about encrypted passphrases.
+- Rewrote the public headings and README terminology: **Change history**, **Privacy**, “person keeping the card”, and “confirmed by”. Removed the low-value payment-provider-ID wording.
+- Advanced the service-worker cache from `mhc-v4` to `mhc-v5` so installed copies receive this repair.
 
 ## Verification evidence
 
-Performed 2026-08-29 UTC:
-
-| Gate | Evidence |
+| Gate | Result and evidence |
 | --- | --- |
-| Clean dependency install | Repeated `npm ci --ignore-scripts --no-audit --no-fund` from every exact claims command; 60 packages installed each time. |
-| Claims | All 10 `.factory/claims.json` commands passed on desktop and exact 390 × 844 mobile: 2/2 each. |
-| Type/lint | `npm run lint` passed (`tsc --noEmit`). |
-| Unit/config | `npm run test:unit` passed 8/8, including nested backup rejection, routing policy, CSP, metadata assets, crypto, and duplicate/date validation. |
-| Full integration | `npm test` passed 8 unit/config tests and 42/42 Playwright checks across desktop and mobile. |
-| Accessibility/keyboard | Light home/legal and populated dark demo axe scans reported zero serious/critical findings. Dialog Tab/Shift+Tab trap, Escape, return focus, visible file focus, and 44 px audited links passed. |
-| Import safety | The verifier's `profile: {"id":"profile"}` fixture and invalid JSON were rejected before confirmation/write; the original demo survived reload. |
-| Responsive | Maximum allowed unbroken medicine fields fit 390 px without horizontal overflow. Visual desktop, 390 px home, and dark-demo reviews passed. |
-| Privacy | The live demo edit request log contained only `https://medication-handoff-card.sociobot.in`; no tracker, CDN font, or health-data request occurred. |
-| Offline/PWA | Service-worker-controlled live `/demo` reloaded offline with Evelyn Parker and the Offline banner. `mhc-v4` versions caches; a blocked worker produced no page error and the app remained usable. |
-| Production build | `npm run build` produced root `dist/index.html`; main JS 39.24 kB / 12.62 kB gzip and CSS 19.03 kB / 5.05 kB gzip. |
-| Local URL smoke | `verify-url.sh` passed title, `lang=en`, one h1, main, alt text, button labels, and console checks; measured load 624 ms. |
-| Lighthouse mobile | Local production build: Performance 100, Accessibility 100, Best Practices 100, SEO 100; FCP 0.9 s, LCP 1.8 s, CLS 0, TBT 0 ms, 108 KiB transfer. |
-| Live routing | `/`, `/demo`, `/privacy`, and `/terms` returned 200. `/definitely-missing-qa-page` returned 404 with “That page is not here.” |
-| Live checkout | Sociobot checkout returned 303 to `https://checkout.dodopayments.com/session/...`; the app's tagged claim checks the exact $12 link and redirect. |
-| Response policy | Live CSP, HSTS, Referrer-Policy, X-Content-Type-Options, and Permissions-Policy are enforced. Hashed assets are immutable for one year; manifest is `application/manifest+json` with `no-cache`. |
-| Live identity | Live index, hashed JS/CSS, service worker, manifest, favicon, touch icon, and social image byte-match `dist/` by SHA-256. Live `verify-url.sh` passed in 901 ms. |
+| Clean-clone claims | All 14 literal commands in `.factory/claims.json` passed from a fresh `git clone`; each self-installed dependencies and ran in desktop + 390 px projects (2/2 each, 28 browser executions). |
+| Unit/type/build | `npm run lint` passed; `npm run test:unit` passed 8/8; `npm run build` produced `dist/index.html`. Final JS is 41.61 kB raw / 13.33 kB gzip and CSS is 19.03 kB raw / 5.05 kB gzip. |
+| Full suite | `npm test` passed: 8 Vitest tests and 52 Playwright tests. It covers record workflow, restore validation, print PDF, offline reload, dialog trap, dark-mode axe, 390 px wrapping, worker failure, all 14 claims, metadata, and route focus/Back. |
+| Accessibility | Local and live axe scans reported 0 serious/critical violations. `verify-url.sh` passed at local production and live Home/Demo: title, `lang=en`, one `<h1>`, main landmark, alt text, labelled buttons, and zero console errors. Live screenshots: [desktop home](evidence/polish-1-live/screenshot-desktop-home.png) and [mobile demo](evidence/polish-1-live/screenshot-mobile-demo.png). |
+| Live route repair | Cold live browser check passed `/` → `/privacy` → Back with focused `<h1>`, “Privacy page” announcement, and correct route metadata. Direct `/demo`, `/privacy`, `/terms`, and `/?demo=1` each set their own title/canonical/description. Unknown `/polish-1-missing` returned the designed 404 with HTTP 404. |
+| Live demo repair | Live `?demo=1` edit/reset/Start-for-real/reopen check restored the original Lisinopril note and never copied the sample into the real card. |
+| PWA/offline | Full Playwright offline reload passed after the `mhc-v5` cache-version build. Live `/sw.js` serves `const VERSION = 'mhc-v5'`. |
+| Lighthouse | Live mobile Lighthouse: Performance 100, Accessibility 100, Best Practices 100, SEO 100; LCP 1394.511 ms and CLS 0. Report: [lighthouse.json](evidence/polish-1-live/lighthouse.json). |
 
-Deployment used `/opt/fleet/lib/deploy-static.sh medication-handoff-card dist`
-and completed as Azure Static Web Apps deployment
-`1c77e60e-a651-4a3b-b302-35f4898f6fc6`.
-
-## Run and verify
+## Run and deploy
 
 ```sh
 npm ci
-npm run lint
-npm run test:unit
 npm test
 npm run build
-/opt/fleet/lib/verify-url.sh http://127.0.0.1:4173 <evidence-directory>
+/opt/fleet/lib/deploy-static.sh medication-handoff-card dist
 ```
 
-Run each exact `test` string in `.factory/claims.json` to repeat claim-specific
-clean-clone verification.
+No runtime secrets or environment variables are required. The artifact remains a static, local-first PWA; health records stay in browser storage unless the person downloads a backup.
 
-## Known gaps
+## Known gaps and next steps
 
-No release-blocking gaps remain. Verification did not place a real $12 charge;
-it proved the live hosted checkout redirect and tested license return,
-verification, encrypted export, and revoked/invalid behavior without spending.
+None. Future product work should preserve the existing claim-test contract and increment the service-worker cache version whenever the deployed shell changes.
