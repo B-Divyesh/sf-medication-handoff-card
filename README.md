@@ -7,23 +7,25 @@ the current list, who confirmed it, and what changed together.
 Live site: <https://medication-handoff-card.sociobot.in>
 
 This is a communication tool, not medical advice. It does not check drug
-interactions, recommend doses, dispense medicines, order refills, or send
-alerts. Medication decisions must be confirmed with a qualified clinician or
-pharmacist.
+interactions or recommend doses. Medication decisions must be confirmed with a
+qualified clinician or pharmacist.
 
 ## What it does
 
 - Records medicine name, dose/strength, timing, prescriber, and notes.
 - Preserves a dated change history when medicines are added, edited, or stopped.
-- Records the card owner, keeper, last confirmation date, and confirmer.
+- Records the card owner, person keeping the card, confirmation date, and
+  confirmed by.
 - Produces a large-type, one-page print/PDF handoff card.
-- Stores all health data locally in IndexedDB; there is no account or cloud copy.
-- Exports and restores a portable plain JSON backup for free.
-- Works after the network disappears via a versioned service-worker cache.
+- Stores health data locally in IndexedDB; there is no health-data account or
+  cloud copy.
+- Exports and restores a portable plain JSON backup. Downloaded JSON can be
+  opened as text.
+- Works offline after the first visit.
 - Offers an optional $12 one-time license for passphrase-protected backups. The
-  core record, print flow, and plain export stay free.
-- Includes light and dark themes, reduced-motion behavior, keyboard-ready
-  native dialogs, and a responsive 390 px phone layout.
+  card, print view, and plain JSON backup are free.
+- Includes light and dark themes, reduced-motion behavior, medicine dialogs
+  that keep Tab focus inside, and a responsive 390 px phone layout.
 
 ## Try the sample card
 
@@ -73,13 +75,12 @@ routes, and the designed 404 response for static deployment.
 ## Data and licensing
 
 Medication data stays in the browser unless the user downloads a backup. Plain
-`.json` backups are readable. Paid `.mhc` backups use a passphrase that is
-never stored and cannot be recovered.
+`.json` backups can be opened as text. Store an encrypted-backup passphrase
+somewhere safe.
 
 The paid flow uses only the Sociobot billing API. The live product is registered
 at $12. The checkout link is derived from the product slug, and returned
-licenses are stored as `sb_license:medication-handoff-card`. There is no
-hard-coded payment-provider product ID in the app.
+licenses are stored as `sb_license:medication-handoff-card`.
 
 ## Project map
 

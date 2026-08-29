@@ -12,9 +12,9 @@ rely on them even when they do not end in punctuation.
 | See a completed card for Evelyn Parker. | 7 | Pass |
 | Records stay in this browser. | 5 | Pass |
 | Works offline after the first visit. | 7 | Pass |
-| Core card free; encrypted backups cost $12 once. | 8 | Pass |
-| Communication tool, not medical advice. | 5 | Pass |
-| No interaction checks or dose recommendations. | 6 | Pass |
+| Card, print, and JSON backup are free; encrypted backups cost $12 once. | 12 | Pass · `core-features-free` |
+| Communication tool, not medical advice. | 5 | Pass · `non-clinical-scope` |
+| No interaction checks or dose recommendations. | 6 | Pass · `non-clinical-scope` |
 | Confirm every change with a qualified clinician or pharmacist. | 9 | Pass |
 | Whose medicines are these? | 4 | Pass |
 | You, a relative, or the card owner | 7 | Pass |
@@ -28,11 +28,11 @@ rely on them even when they do not end in punctuation.
 | Confirm the current list and keep dated changes. | 8 | Pass |
 | Print one page or download a JSON backup. | 8 | Pass |
 | Your record stays on this device | 6 | Pass |
-| There is no health-data account or cloud copy. | 8 | Pass |
+| There is no health-data account or cloud copy. | 8 | Pass · `no-account-or-cloud-copy` |
 | You choose when to print or download a backup. | 9 | Pass |
 | Protect backups with a passphrase | 6 | Pass |
-| Encrypted backups are the only paid feature. | 7 | Pass |
-| The card, print view, and plain JSON backup stay free. | 10 | Pass |
+| Encrypted backup is the only paid feature. | 6 | Pass · `core-features-free` |
+| The card, print view, and plain JSON backup are free. | 10 | Pass · `core-features-free` |
 | Your health record stays in this browser during normal use. | 10 | Pass |
 | Scene generated for this product; no person or brand is depicted. | 11 | Pass |
 
@@ -45,6 +45,6 @@ No sentence exceeds 22 words. No copy uses a banned marketing word.
 | The printable record | handoff card |
 | A medication entry | medicine |
 | The person whose list it is | card owner |
-| The person maintaining it | card keeper |
+| The person maintaining it | person keeping the card |
 | The test-only record set | demo |
 | A downloaded data copy | backup |

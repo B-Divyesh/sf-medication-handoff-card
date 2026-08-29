@@ -92,6 +92,36 @@ test('uses plain-language titles for the home and demo routes', async ({ page })
   await expect(page).toHaveTitle('Demo — Medication Handoff Card');
 });
 
+test('updates route focus, announcements, and metadata for navigation and Back', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Privacy' }).first().click();
+  await expect(page).toHaveURL('/privacy');
+  await expect(page.getByRole('heading', { level: 1, name: 'Privacy' })).toBeFocused();
+  await expect(page.locator('#route-announcer')).toHaveText('Privacy page');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://medication-handoff-card.sociobot.in/privacy');
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', 'Read how Medication Handoff Card keeps your medication record in this browser.');
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Privacy — Medication Handoff Card');
+  await expect(page.locator('meta[name="twitter:description"]')).toHaveAttribute('content', 'Read how Medication Handoff Card keeps your medication record in this browser.');
+
+  await page.goBack();
+  await expect(page).toHaveURL('/');
+  await expect(page.getByRole('heading', { level: 1, name: 'Make a clear medication handoff card.' })).toBeFocused();
+  await expect(page.locator('#route-announcer')).toHaveText('Medication handoff card');
+
+  const expected = [
+    ['/demo', 'Demo — Medication Handoff Card', 'https://medication-handoff-card.sociobot.in/demo', 'Try a completed sample medication handoff card; sample changes never reach your real card.'],
+    ['/terms', 'Terms — Medication Handoff Card', 'https://medication-handoff-card.sociobot.in/terms', 'Read the plain-language terms for Medication Handoff Card.']
+  ] as const;
+  for (const [path, title, canonical, description] of expected) {
+    await page.goto(path);
+    await expect(page).toHaveTitle(title);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', canonical);
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', description);
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', title);
+    await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', title);
+  }
+});
+
 test('loads the demo without console errors or horizontal overflow', async ({ page }) => {
   const consoleErrors: string[] = [];
   page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()); });
@@ -162,7 +192,8 @@ test('@claim:encrypted-backup restores a one-time license and creates an encrypt
 });
 
 test('@claim:demo-isolation loads sample data separately and can return to an empty real card', async ({ page }) => {
-  await page.goto('/demo');
+  await page.goto('/?demo=1');
+  await expect(page).toHaveURL('/?demo=1');
   await expect(page).toHaveTitle('Demo — Medication Handoff Card');
   await expect(page.getByText('Demo — sample data, nothing is saved to your real card.')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Evelyn Parker' })).toBeVisible();
@@ -328,6 +359,56 @@ test('@claim:checkout-available opens the live $12 Sociobot checkout', async ({ 
   const response = await request.get(await link.getAttribute('href') as string, { maxRedirects: 0 });
   expect(response.status()).toBe(303);
   expect(response.headers().location).toMatch(/^https:\/\/checkout\.dodopayments\.com\/session\//);
+});
+
+test('@claim:core-features-free keeps the card, print view, and JSON backup available without a license', async ({ page }) => {
+  await page.goto('/demo');
+  await expect(page.getByRole('button', { name: 'Print / PDF' })).toBeEnabled();
+  await page.getByRole('button', { name: 'Backup & settings' }).click();
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download JSON' }).click();
+  await downloadPromise;
+  await expect(page.getByText('Locked', { exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Unlock encrypted backups — $12' })).toHaveAttribute('href', 'https://api.sociobot.in/api/v1/products/medication-handoff-card/checkout');
+});
+
+test('@claim:non-clinical-scope presents a record-only medication workflow', async ({ page }) => {
+  await page.goto('/demo');
+  await expect(page.getByText('No interaction checks or dose recommendations.')).toBeVisible();
+  await page.getByRole('button', { name: 'Edit', exact: true }).first().click();
+  await expect(page.getByLabel('Medicine name')).toBeVisible();
+  await expect(page.getByLabel('Dose or strength')).toBeVisible();
+  await expect(page.getByLabel('When taken')).toBeVisible();
+  await expect(page.getByLabel('Prescriber')).toBeVisible();
+  await expect(page.getByRole('button', { name: /interaction|recommend/i })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Cancel' }).click();
+  await page.emulateMedia({ media: 'print' });
+  await expect(page.locator('.print-sheet')).toContainText('does not check interactions or whether a medicine or dose is right');
+});
+
+test('@claim:no-account-or-cloud-copy keeps a demo edit local and offers no account or sync action', async ({ page }) => {
+  const requests: string[] = [];
+  page.on('request', (request) => requests.push(request.url()));
+  await page.goto('/demo');
+  await page.getByRole('button', { name: 'Edit', exact: true }).first().click();
+  await page.getByLabel(/Notes from the label/).fill('Reviewed on this device.');
+  await page.getByRole('button', { name: 'Save change' }).click();
+  expect(requests.every((url) => new URL(url).origin === 'http://127.0.0.1:4173')).toBe(true);
+  await expect(page.getByRole('link', { name: /sign in|account|sync/i })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /sign in|account|sync/i })).toHaveCount(0);
+});
+
+test('@claim:plain-json-readable downloads backup text with the sample owner and medicine', async ({ page }) => {
+  await page.goto('/demo');
+  await page.getByRole('button', { name: 'Backup & settings' }).click();
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download JSON' }).click();
+  const download = await downloadPromise;
+  const downloadedPath = await download.path();
+  if (!downloadedPath) throw new Error('Plain JSON backup download was not written.');
+  const backup = JSON.parse(await readFile(downloadedPath, 'utf8')) as { profile: { personName: string }; medications: Array<{ name: string }> };
+  expect(backup.profile.personName).toBe('Evelyn Parker');
+  expect(backup.medications.map((medicine) => medicine.name)).toContain('Lisinopril');
 });
 
 test('shows required landing sections and product identity metadata', async ({ page }) => {

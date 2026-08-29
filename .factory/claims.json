@@ -68,5 +68,33 @@
     "where": "Home facts, paid section, Backup & settings, Terms, README",
     "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:checkout-available",
     "sandbox": "Fresh home page checks the exact price and confirms the production Sociobot endpoint redirects to a Dodo checkout session."
+  },
+  {
+    "id": "core-features-free",
+    "claim": "The card, print view, and plain JSON backup are free; encrypted backups cost $12 once.",
+    "where": "Landing facts, paid section, Terms, README",
+    "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:core-features-free",
+    "sandbox": "Fresh demo without a license enables Print / PDF and JSON download, while encrypted backup remains locked behind the visible $12 one-time checkout link."
+  },
+  {
+    "id": "non-clinical-scope",
+    "claim": "This communication record does not check interactions or recommend doses.",
+    "where": "Landing safety note, empty state, Terms, README, print card",
+    "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:non-clinical-scope",
+    "sandbox": "Fresh demo inspects the record-only medicine editor and print safety note, and confirms no interaction-check or dose-recommendation action is presented."
+  },
+  {
+    "id": "no-account-or-cloud-copy",
+    "claim": "There is no health-data account or cloud copy.",
+    "where": "Landing privacy section, Privacy page, README",
+    "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:no-account-or-cloud-copy",
+    "sandbox": "Fresh demo edit records outgoing requests and asserts only same-origin app assets are used; the visible product exposes no sign-in, account, or sync action."
+  },
+  {
+    "id": "plain-json-readable",
+    "claim": "Downloaded plain JSON backups can be opened as text.",
+    "where": "Privacy page, Backup & settings, README",
+    "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:plain-json-readable",
+    "sandbox": "Fresh demo downloads JSON and parses the downloaded text to assert its named owner and medicine are readable without a passphrase."
   }
 ]

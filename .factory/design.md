@@ -58,7 +58,7 @@ outlines and explicit labels.
   to its origin. Saving creates a visible change-log entry immediately.
 - Removing a medicine is described as “Stop and remove” and requires a reason;
   the action removes it from the current list while preserving history.
-- Confirmation is a deliberate dated action with the confirmer's name.
+- Confirmation is a deliberate dated action with the confirmed-by name.
 - Export/import lives under “Backup & settings,” separate from daily editing.
 - Print preview is the handoff climax: a clean, large-type one-page record.
 

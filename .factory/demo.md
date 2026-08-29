@@ -1,6 +1,6 @@
 # Demo sandbox
 
-Open `/demo` or `/?demo=1` to try Medication Handoff Card with sample data in
+Open `/?demo=1` or `/demo` to try Medication Handoff Card with sample data in
 one click. The sample is Evelyn Parker's confirmed three-medicine list:
 Lisinopril, Metformin ER, and Vitamin D3, with a short change history.
 

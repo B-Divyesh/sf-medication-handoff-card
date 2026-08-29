@@ -35,6 +35,8 @@ const state: AppState = {
 };
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
+const routeAnnouncer = document.querySelector<HTMLDivElement>('#route-announcer')!;
+const siteUrl = 'https://medication-handoff-card.sociobot.in';
 const escaped = (value: string) => value.replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]!);
 const displayDate = (value: string, withTime = false) => value ? new Intl.DateTimeFormat(undefined, withTime ? { dateStyle: 'medium', timeStyle: 'short' } : { dateStyle: 'medium' }).format(new Date(value)) : 'Not yet confirmed';
 const isoNow = () => new Date().toISOString();
@@ -81,18 +83,18 @@ function legalPage(kind: 'privacy' | 'terms'): string {
     </header>
     <main id="main-content" class="legal-page">
       <p class="eyebrow">Plain-language policy · Effective 28 August 2026</p>
-      <h1>${privacy ? 'Privacy' : 'Terms of use'}</h1>
+      <h1 tabindex="-1">${privacy ? 'Privacy' : 'Terms of use'}</h1>
       ${privacy ? `
         <p class="lede">Your medication record stays in this browser unless you choose to export it.</p>
         <h2>What is stored</h2><p>Names, medication details, confirmation details, and change history are stored in IndexedDB on your device. Your theme choice and optional license token are stored in localStorage.</p>
         <h2>What leaves your device</h2><p>The record itself is never sent to us. When you verify a paid license, only the license token is sent to the Sociobot billing API. The hosted checkout is operated by Sociobot, with Dodo as merchant of record, under their payment privacy terms.</p>
-        <h2>Exports and deletion</h2><p>Downloaded backups are controlled by you. Plain JSON backups are readable files. Encrypted backups use your passphrase, which we cannot recover. Clear this site's storage in your browser to delete the local record.</p>
+        <h2>Exports and deletion</h2><p>Downloaded backups are controlled by you. Plain JSON backups can be opened as text. Store any encrypted-backup passphrase somewhere safe. Clear this site's storage in your browser to delete the local record.</p>
         <h2>Analytics and health data</h2><p>This app includes no advertising, tracking SDK, analytics script, cloud account, or health-data upload. Your browser or hosting provider may keep standard short-lived request logs.</p>
       ` : `
         <p class="lede">This tool helps people communicate a medication list. It does not provide healthcare.</p>
         <h2>Not medical advice</h2><p>Medication Handoff Card does not check interactions, recommend doses, diagnose, dispense, or send alerts. Confirm all medication decisions with a qualified clinician or pharmacist. In an emergency, contact local emergency services.</p>
         <h2>Your responsibility</h2><p>You are responsible for entering, checking, sharing, and safeguarding the record. A printed or exported list can become outdated; always check its confirmation date.</p>
-        <h2>One-time unlock</h2><p>The optional $12 one-time purchase unlocks encrypted backups and future convenience extras for this product. Core records, print, and plain export remain free. Sociobot/Dodo is the merchant of record and handles payment and refunds; a refund revokes the associated license.</p>
+        <h2>One-time unlock</h2><p>The optional $12 one-time purchase unlocks encrypted backups. The card, print view, and plain JSON backup are free. Sociobot/Dodo is the merchant of record and handles payment and refunds; a refund revokes the associated license.</p>
         <h2>Availability and warranty</h2><p>The software is provided “as is” under the MIT License, without warranty. Local browser data can be lost if site data is cleared, so keep a backup.</p>
       `}
       <p><a class="text-link" href="/">← Return to your card</a></p>
@@ -182,7 +184,7 @@ function settingsDialog(): string {
     <div class="dialog-heading"><p class="eyebrow">Your data, your copy</p><h2 id="settings-title">Backup & settings</h2><p>Backups include the card owner, current medicines, and full change history.</p></div>
     <section class="settings-section" aria-labelledby="plain-backup"><h3 id="plain-backup">Free backup</h3><p id="restore-help">Plain JSON is readable and portable. Choose only a Medication Handoff Card .json or .mhc backup.</p><div class="inline-actions"><button class="button secondary" type="button" id="export-json">${icon('download')} Download JSON</button><label class="button quiet file-button">Restore a backup<input id="import-file" type="file" accept=".json,.mhc,application/json" aria-describedby="restore-help"></label></div></section>
     <section class="settings-section paid-section" aria-labelledby="secure-backup"><div class="paid-heading"><div><p class="eyebrow">One-time unlock · $12</p><h3 id="secure-backup">Encrypted backup</h3></div><span class="status-chip ${state.paid ? 'unlocked' : ''}">${state.paid ? 'Unlocked' : `${icon('lock')} Locked`}</span></div><p>Protect a backup with a passphrase. Core records, printing, and plain backup stay free.</p>
-      ${state.paid ? `<label><span>Backup passphrase</span><input id="backup-passphrase" type="password" minlength="10" autocomplete="new-password" placeholder="At least 10 characters"><small>We cannot recover this passphrase.</small></label><button class="button primary" type="button" id="export-encrypted">${icon('lock')} Download encrypted backup</button>` : `<a class="button primary" href="${checkoutUrl}">Unlock encrypted backups — $12</a><form id="license-form" class="license-form"><label><span>Already purchased? Paste your license</span><input name="license" required autocomplete="off" spellcheck="false"></label><button class="button secondary" type="submit">Verify license</button></form>`}
+      ${state.paid ? `<label><span>Backup passphrase</span><input id="backup-passphrase" type="password" minlength="10" autocomplete="new-password" placeholder="At least 10 characters"><small>Store this passphrase somewhere safe.</small></label><button class="button primary" type="button" id="export-encrypted">${icon('lock')} Download encrypted backup</button>` : `<a class="button primary" href="${checkoutUrl}">Unlock encrypted backups — $12</a><form id="license-form" class="license-form"><label><span>Already purchased? Paste your license</span><input name="license" required autocomplete="off" spellcheck="false"></label><button class="button secondary" type="submit">Verify license</button></form>`}
       <p class="fine-print">One-time purchase. Sociobot/Dodo is the merchant of record and handles refunds. <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></p>
     </section>
     <section class="settings-section"><h3>Appearance</h3><button class="button quiet" type="button" id="theme-toggle-settings">${icon('moon')} Change light or dark theme</button></section>
@@ -201,17 +203,17 @@ function printSheet(): string {
 function appPage(): string {
   return `<header class="site-header"><a class="brand" href="/" aria-label="Medication Handoff Card home"><span class="brand-mark" aria-hidden="true">M</span><span>Medication Handoff Card</span></a><nav class="site-nav" aria-label="Main navigation"><a href="/demo">Try demo</a><a href="/privacy">Privacy</a></nav><div class="header-actions"><button class="icon-button" type="button" id="print-button" ${!state.profile.personName ? 'disabled' : ''}>${icon('print')}<span>Print / PDF</span></button><button class="icon-button" type="button" data-open-settings>${icon('settings')}<span>Backup & settings</span></button></div></header>
     <div id="offline-banner" class="offline-banner" hidden><strong>Offline:</strong> your card still works and saves on this device.</div>
-    ${state.demo ? `<aside class="demo-banner" aria-label="Demo mode"><span><strong>Demo — sample data, nothing is saved to your real card.</strong> Try editing Evelyn Parker’s example list.</span><span class="demo-actions"><button class="text-button" type="button" id="reset-demo">Reset demo</button><a class="text-button" href="/" id="start-real">Start for real</a></span></aside>` : ''}
+    ${state.demo ? `<aside class="demo-banner" aria-label="Demo mode"><span><strong>Demo — sample data, nothing is saved to your real card.</strong> Try editing Evelyn Parker’s example list.</span><span class="demo-actions"><button class="text-button" type="button" id="reset-demo">Reset demo</button><a class="text-button" href="/" data-start-real>Start for real</a></span></aside>` : ''}
     <main id="main-content">
-      <section class="masthead"><div><p class="eyebrow">A dated list for the next handoff</p><h1>Make a clear medication handoff card.</h1><p class="lede">For adult children, caregivers, and older adults sharing a checked list with family or clinicians.</p>${state.demo ? '<p class="demo-intro">This sample is separate from your own card. Reset it any time.</p>' : '<p class="masthead-action"><a class="button primary" href="/demo">Try it with sample data</a><span>See a completed card for Evelyn Parker.</span></p>'}</div><ul class="plain-facts" aria-label="Product facts"><li>Records stay in this browser.</li><li>Works offline after the first visit.</li><li>Core card free; encrypted backups cost $12 once.</li></ul></section>
+      <section class="masthead"><div><p class="eyebrow">A dated list for the next handoff</p><h1 tabindex="-1">Make a clear medication handoff card.</h1><p class="lede">For adult children, caregivers, and older adults sharing a checked list with family or clinicians.</p>${state.demo ? '<p class="demo-intro">This sample is separate from your own card. Reset it any time.</p>' : '<p class="masthead-action"><a class="button primary" href="/?demo=1">Try it with sample data</a><span>See a completed card for Evelyn Parker.</span></p>'}</div><ul class="plain-facts" aria-label="Product facts"><li>Records stay in this browser.</li><li>Works offline after the first visit.</li><li>Card, print, and JSON backup are free; encrypted backups cost $12 once.</li></ul></section>
       <aside class="safety-note" aria-label="Important safety information"><strong>Communication tool, not medical advice.</strong><span>No interaction checks or dose recommendations. Confirm every change with a qualified clinician or pharmacist.</span></aside>
       ${profileSection()}
       ${state.error ? `<div class="error-banner" role="alert"><strong>Something went wrong.</strong> ${escaped(state.error)} <button class="text-button" type="button" id="reload-button">Reload</button><button class="text-button" type="button" id="reset-record">Reset this device’s card</button></div>` : ''}
       <div class="workspace">
         <section class="current-list" aria-labelledby="current-heading"><div class="section-heading"><div><p class="eyebrow">Current list · ${state.medications.length}</p><h2 id="current-heading">Medicines being taken</h2></div>${state.medications.length ? `<button class="button primary" type="button" data-add-medication>${icon('plus')} Add medicine</button>` : ''}</div>${medicationList()}${state.medications.length ? `<div class="confirm-bar"><div><strong>Checked every line?</strong><span>Date the list before sharing it.</span></div><button class="button success" type="button" data-confirm-list>${icon('check')} Confirm current list</button></div>` : ''}</section>
-        <aside class="history" aria-labelledby="history-heading"><div class="section-heading"><div><p class="eyebrow">Accountability</p><h2 id="history-heading">What changed</h2></div></div>${changeLog()}</aside>
+        <aside class="history" aria-labelledby="history-heading"><div class="section-heading"><div><p class="eyebrow">Change history</p><h2 id="history-heading">What changed</h2></div></div>${changeLog()}</aside>
       </div>
-      ${state.demo ? '' : `<section class="how-it-works" aria-labelledby="how-heading"><p class="eyebrow">Three steps</p><h2 id="how-heading">How it works</h2><ol><li><strong>Record the list.</strong><span>Copy each medicine, dose, timing, and prescriber from a trusted source.</span></li><li><strong>Check the handoff.</strong><span>Confirm the current list and keep dated changes.</span></li><li><strong>Share a copy.</strong><span>Print one page or download a JSON backup.</span></li></ol></section><section class="privacy-explainer" aria-labelledby="privacy-heading"><p class="eyebrow">Private by default</p><h2 id="privacy-heading">Your record stays on this device</h2><p>There is no health-data account or cloud copy. You choose when to print or download a backup.</p><p><a href="/privacy">Read the privacy details</a></p></section><section class="landing-paid" aria-labelledby="paid-heading"><div><p class="eyebrow">Optional · $12 once</p><h2 id="paid-heading">Protect backups with a passphrase</h2><p>Encrypted backups are the only paid feature. The card, print view, and plain JSON backup stay free.</p></div><a class="button primary" href="${checkoutUrl}">Buy encrypted backups — $12</a></section>`}
+      ${state.demo ? '' : `<section class="how-it-works" aria-labelledby="how-heading"><p class="eyebrow">Three steps</p><h2 id="how-heading">How it works</h2><ol><li><strong>Record the list.</strong><span>Copy each medicine, dose, timing, and prescriber from a trusted source.</span></li><li><strong>Check the handoff.</strong><span>Confirm the current list and keep dated changes.</span></li><li><strong>Share a copy.</strong><span>Print one page or download a JSON backup.</span></li></ol></section><section class="privacy-explainer" aria-labelledby="privacy-heading"><p class="eyebrow">Privacy</p><h2 id="privacy-heading">Your record stays on this device</h2><p>There is no health-data account or cloud copy. You choose when to print or download a backup.</p><p><a href="/privacy">Read the privacy details</a></p></section><section class="landing-paid" aria-labelledby="paid-heading"><div><p class="eyebrow">Optional · $12 once</p><h2 id="paid-heading">Protect backups with a passphrase</h2><p>Encrypted backup is the only paid feature. The card, print view, and plain JSON backup are free.</p></div><a class="button primary" href="${checkoutUrl}">Buy encrypted backups — $12</a></section>`}
     </main>${footer()}${medicineDialog()}${stopDialog()}${confirmDialog()}${settingsDialog()}${printSheet()}
     <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true" ${state.notice ? '' : 'hidden'}>${escaped(state.notice)}</div>`;
 }
@@ -230,10 +232,59 @@ function toggleTheme(): void {
   announce(`${next === 'dark' ? 'Dark' : 'Light'} theme on.`);
 }
 
+type RouteName = '/' | '/demo' | '/privacy' | '/terms';
+
+const routeDetails: Record<RouteName, { title: string; description: string; announcement: string }> = {
+  '/': {
+    title: 'Medication Handoff Card — share a clear medicine list',
+    description: 'Make a clear, dated medication handoff card for family and clinicians.',
+    announcement: 'Medication handoff card'
+  },
+  '/demo': {
+    title: 'Demo — Medication Handoff Card',
+    description: 'Try a completed sample medication handoff card; sample changes never reach your real card.',
+    announcement: 'Demo page'
+  },
+  '/privacy': {
+    title: 'Privacy — Medication Handoff Card',
+    description: 'Read how Medication Handoff Card keeps your medication record in this browser.',
+    announcement: 'Privacy page'
+  },
+  '/terms': {
+    title: 'Terms — Medication Handoff Card',
+    description: 'Read the plain-language terms for Medication Handoff Card.',
+    announcement: 'Terms page'
+  }
+};
+
+function routeName(): RouteName {
+  const path = location.pathname.replace(/\/$/, '') || '/';
+  if (path === '/privacy' || path === '/terms' || path === '/demo') return path;
+  return new URLSearchParams(location.search).get('demo') === '1' ? '/demo' : '/';
+}
+
+function syncRouteMetadata(route: RouteName): void {
+  const details = routeDetails[route];
+  const canonical = `${siteUrl}${route === '/' ? '/' : route}`;
+  document.title = details.title;
+  const description = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+  const canonicalLink = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+  const ogTitle = document.querySelector<HTMLMetaElement>('meta[property="og:title"]');
+  const ogDescription = document.querySelector<HTMLMetaElement>('meta[property="og:description"]');
+  const twitterTitle = document.querySelector<HTMLMetaElement>('meta[name="twitter:title"]');
+  const twitterDescription = document.querySelector<HTMLMetaElement>('meta[name="twitter:description"]');
+  if (description) description.content = details.description;
+  if (canonicalLink) canonicalLink.href = canonical;
+  if (ogTitle) ogTitle.content = details.title;
+  if (ogDescription) ogDescription.content = details.description;
+  if (twitterTitle) twitterTitle.content = details.title;
+  if (twitterDescription) twitterDescription.content = details.description;
+}
+
 function render(): void {
-  const route = location.pathname.replace(/\/$/, '') || '/';
+  const route = routeName();
   app.innerHTML = route === '/privacy' ? legalPage('privacy') : route === '/terms' ? legalPage('terms') : appPage();
-  document.title = route === '/privacy' ? 'Privacy — Medication Handoff Card' : route === '/terms' ? 'Terms — Medication Handoff Card' : state.demo ? 'Demo — Medication Handoff Card' : 'Medication Handoff Card — share a clear medicine list';
+  syncRouteMetadata(route);
   bindEvents();
   updateOnlineState();
   if (state.openDialog) {
@@ -244,6 +295,81 @@ function render(): void {
       window.setTimeout(() => dialog.querySelector<HTMLElement>('input, textarea, button, [href]')?.focus(), 0);
     }
   }
+}
+
+function focusAndAnnounceRoute(route: RouteName, scrollPosition: number): void {
+  window.requestAnimationFrame(() => {
+    window.scrollTo({ top: scrollPosition, behavior: 'auto' });
+    document.querySelector<HTMLElement>('main h1')?.focus({ preventScroll: true });
+    routeAnnouncer.textContent = '';
+    window.setTimeout(() => { routeAnnouncer.textContent = routeDetails[route].announcement; }, 0);
+  });
+}
+
+async function loadRoute(moveFocus: boolean, scrollPosition = 0): Promise<void> {
+  const route = routeName();
+  state.openDialog = null;
+  state.editingMedication = undefined;
+  state.stoppingMedication = undefined;
+  state.returnFocus = undefined;
+  if (route === '/privacy' || route === '/terms') {
+    state.demo = false;
+    render();
+  } else {
+    state.demo = route === '/demo';
+    useStorageNamespace(state.demo ? 'demo' : 'real');
+    const returned = captureReturnedLicense();
+    try {
+      await refreshData();
+      if (state.demo && !state.profile.personName && !state.medications.length && !state.changes.length) {
+        await replaceAll(sampleBackup());
+        await refreshData();
+      }
+      state.error = '';
+      render();
+      if (returned) announce('License received. Verifying…');
+      void verifyLicense(returned).then((result) => {
+        const changed = state.paid !== result.valid;
+        state.paid = result.valid;
+        if (changed) render();
+        if (result.message) announce(result.message);
+        if (returned && result.valid) announce('Encrypted backups unlocked.');
+      });
+    } catch (error) {
+      state.error = error instanceof Error ? error.message : 'The local record could not be opened.';
+      render();
+    }
+  }
+  if (moveFocus) focusAndAnnounceRoute(route, scrollPosition);
+}
+
+async function navigateTo(href: string): Promise<void> {
+  const target = new URL(href, location.origin);
+  history.replaceState({ scrollPosition: window.scrollY }, '', location.href);
+  history.pushState({ scrollPosition: 0 }, '', `${target.pathname}${target.search}${target.hash}`);
+  await loadRoute(true);
+}
+
+function installRouting(): void {
+  history.scrollRestoration = 'manual';
+  document.addEventListener('click', (event) => {
+    const anchor = (event.target as Element).closest<HTMLAnchorElement>('a[href]');
+    if (!anchor || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || anchor.target || anchor.hasAttribute('download')) return;
+    const target = new URL(anchor.href, location.origin);
+    if (target.origin !== location.origin || target.hash) return;
+    const validPath = target.pathname.replace(/\/$/, '') || '/';
+    if (!['/', '/demo', '/privacy', '/terms'].includes(validPath)) return;
+    event.preventDefault();
+    if (anchor.hasAttribute('data-start-real')) {
+      void clearAll().then(() => navigateTo('/'));
+      return;
+    }
+    void navigateTo(`${target.pathname}${target.search}`);
+  });
+  window.addEventListener('popstate', (event) => {
+    const position = typeof (event.state as { scrollPosition?: unknown } | null)?.scrollPosition === 'number' ? (event.state as { scrollPosition: number }).scrollPosition : 0;
+    void loadRoute(true, position);
+  });
 }
 
 function announce(message: string): void {
@@ -356,11 +482,6 @@ function bindEvents(): void {
     render();
     announce('Demo reset to the sample card.');
   });
-  document.querySelector<HTMLAnchorElement>('#start-real')?.addEventListener('click', async (event) => {
-    event.preventDefault();
-    await clearAll();
-    location.assign('/');
-  });
 
   document.querySelector<HTMLFormElement>('#profile-form')?.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -432,31 +553,9 @@ async function registerServiceWorker(): Promise<void> {
 
 async function start(): Promise<void> {
   applyTheme();
-  const route = location.pathname.replace(/\/$/, '') || '/';
-  if (route === '/privacy' || route === '/terms') { render(); return; }
-  state.demo = route === '/demo' || new URLSearchParams(location.search).get('demo') === '1';
-  useStorageNamespace(state.demo ? 'demo' : 'real');
-  const returned = captureReturnedLicense();
-  try {
-    await refreshData();
-    if (state.demo && !state.profile.personName && !state.medications.length && !state.changes.length) {
-      await replaceAll(sampleBackup());
-      await refreshData();
-    }
-    render();
-    if (returned) announce('License received. Verifying…');
-    void verifyLicense(returned).then((result) => {
-      const changed = state.paid !== result.valid;
-      state.paid = result.valid;
-      if (changed) render();
-      if (result.message) announce(result.message);
-      if (returned && result.valid) announce('Encrypted backups unlocked.');
-    });
-    void registerServiceWorker().catch(() => undefined);
-  } catch (error) {
-    state.error = error instanceof Error ? error.message : 'The local record could not be opened.';
-    render();
-  }
+  installRouting();
+  await loadRoute(false);
+  void registerServiceWorker().catch(() => undefined);
 }
 
 window.addEventListener('online', updateOnlineState);
