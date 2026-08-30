@@ -1,4 +1,22 @@
-# Medication Handoff Card — polish round 4 handoff
+# Medication Handoff Card — review 5 handoff
+
+## Current review outcome
+
+**FAIL — review 5 found three unlisted legal-page claims.** This reviewer did
+not change product source; it added `.factory/review-5.md` and this handoff
+update only.
+
+- **F-5-1:** Privacy promises no advertising/tracking/analytics and makes a
+  hosting-log statement without a matching claim test.
+- **F-5-2:** Terms promises no diagnosis, dispensing, or alerts beyond the
+  tested interaction/dose boundary.
+- **F-5-3:** Privacy specifies storage locations and browser-storage deletion
+  without a matching observable storage/deletion test.
+
+See `.factory/review-5.md` for exact quotes and concrete test/copy changes.
+All prior review findings were rechecked live and in source; none regressed.
+
+## Previous release context
 
 ## Outcome
 
