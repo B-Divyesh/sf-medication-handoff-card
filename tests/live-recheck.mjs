@@ -14,7 +14,9 @@ const pageErrors = [];
 const attachErrors = (page, label) => {
   page.on('pageerror', (error) => pageErrors.push(`${label}: ${error.message}`));
   page.on('console', (message) => {
-    if (message.type() === 'error') pageErrors.push(`${label}: ${message.text()}`);
+    const text = message.text();
+    if (label === '404' && /Failed to load resource:.*404/.test(text)) return;
+    if (message.type() === 'error') pageErrors.push(`${label}: ${text}`);
   });
 };
 
@@ -169,8 +171,8 @@ try {
   assert.equal(notFoundResponse?.status(), 404);
   assert.equal(await notFoundPage.title(), 'Page not found — Medication Handoff Card');
   assert.equal(await notFoundPage.locator('h1').count(), 1);
-  await notFoundPage.getByRole('link', { name: 'Privacy' }).waitFor();
-  await notFoundPage.getByRole('link', { name: 'Terms' }).waitFor();
+  await notFoundPage.getByRole('contentinfo').getByRole('link', { name: 'Privacy' }).waitFor();
+  await notFoundPage.getByRole('contentinfo').getByRole('link', { name: 'Terms' }).waitFor();
   const notFoundAxe = await new AxeBuilder({ page: notFoundPage }).analyze();
   assert.deepEqual(notFoundAxe.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? '')).map((item) => item.id), []);
   await notFoundPage.screenshot({ path: `${evidenceDir}/not-found-mobile.png`, fullPage: true });
