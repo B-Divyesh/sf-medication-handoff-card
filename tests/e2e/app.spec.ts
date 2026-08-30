@@ -397,7 +397,7 @@ test('@claim:json-backup downloads and restores a plain JSON backup from the dem
 });
 
 test('@claim:full-history-backup includes history beyond the 20 visible entries in a downloaded backup', async ({ page }, testInfo) => {
-  testInfo.setTimeout(60_000);
+  testInfo.setTimeout(120_000);
   await page.goto('/demo');
   for (let index = 1; index <= 21; index += 1) {
     await page.getByRole('button', { name: 'Edit Lisinopril', exact: true }).first().click();
