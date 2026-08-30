@@ -95,10 +95,10 @@ function legalPage(kind: 'privacy' | 'terms'): string {
         <h2>What is stored</h2><p>Names, medication details, confirmation details, and change history are stored in IndexedDB on your device. Your theme choice and optional license token are stored in localStorage.</p>
         <h2>What leaves your device</h2><p>The record itself is never sent to us. When you verify a paid license, the app sends only the license token and product name to the Sociobot billing API. It sends no card details. Checkout starts at Sociobot and redirects to Dodo.</p>
         <h2>Exports and deletion</h2><p>Downloaded backups are controlled by you. Plain JSON backups can be opened as text. Store any encrypted-backup passphrase somewhere safe. Clear this site's storage in your browser to delete the local record.</p>
-        <h2>Analytics and health data</h2><p>This app includes no advertising, tracking SDK, analytics script, cloud account, or health-data upload. Your browser or hosting provider may keep standard short-lived request logs.</p>
+        <h2>Analytics and health data</h2><p>This app includes no advertising or analytics code. It has no cloud account or health-data upload.</p>
       ` : `
-        <p class="lede">This tool helps people communicate a medication list. It does not provide healthcare.</p>
-        <h2>Not medical advice</h2><p>Medication Handoff Card does not check interactions, recommend doses, diagnose, dispense, or send alerts. Confirm all medication decisions with a qualified clinician or pharmacist. In an emergency, contact local emergency services.</p>
+        <p class="lede">Use this card to communicate a medication list.</p>
+        <h2>Not medical advice</h2><p>Medication Handoff Card records the details you enter. It does not check interactions or recommend doses. Confirm all medication decisions with a qualified clinician or pharmacist. In an emergency, contact local emergency services.</p>
         <h2>Your responsibility</h2><p>You are responsible for entering, checking, sharing, and safeguarding the record. A printed or exported list can become outdated; always check its confirmation date.</p>
         <h2>One-time unlock</h2><p>The optional $12 one-time purchase unlocks encrypted backups. The card, print view, and plain JSON backup are free. Checkout starts at Sociobot and redirects to Dodo. If license verification reports a revoked license, encrypted backups lock again.</p>
         <h2>Availability and warranty</h2><p>The software is provided “as is” under the MIT License, without warranty. Local browser data can be lost if site data is cleared, so keep a backup.</p>
@@ -108,7 +108,7 @@ function legalPage(kind: 'privacy' | 'terms'): string {
 }
 
 function footer(): string {
-  return `<footer><p>Your health record stays in this browser during normal use.</p><nav aria-label="Legal"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="https://github.com/B-Divyesh/sf-medication-handoff-card" rel="noreferrer">Source<span class="sr-only"> (external)</span></a></nav><p class="generation-note">Scene generated for this product; no person or brand is depicted. Built by Param Factory · v1.0.6</p></footer>`;
+  return `<footer><p>Your health record stays in this browser during normal use.</p><nav aria-label="Legal"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="https://github.com/B-Divyesh/sf-medication-handoff-card" rel="noreferrer">Source<span class="sr-only"> (external)</span></a></nav><p class="generation-note">Scene generated for this product; no person or brand is depicted. Built by Param Factory · v1.0.7</p></footer>`;
 }
 
 function profileSection(): string {

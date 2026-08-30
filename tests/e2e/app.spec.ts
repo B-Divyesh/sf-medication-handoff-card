@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 
 test('@claim:record-workflow creates, confirms, edits, and preserves a medication handoff card', async ({ page }) => {
   await page.goto('/');
@@ -614,6 +614,9 @@ test('@claim:non-clinical-scope presents a record-only medication workflow', asy
   await page.getByRole('button', { name: 'Cancel' }).click();
   await page.emulateMedia({ media: 'print' });
   await expect(page.locator('.print-sheet')).toContainText('does not check interactions or whether a medicine or dose is right');
+  await page.emulateMedia({ media: 'screen' });
+  await page.goto('/terms');
+  await expect(page.getByText('It does not check interactions or recommend doses.')).toBeVisible();
 });
 
 test('@claim:no-account-or-cloud-copy keeps a demo edit local and offers no account or sync action', async ({ page }) => {
@@ -639,6 +642,92 @@ test('@claim:plain-json-readable downloads backup text with the sample owner and
   const backup = JSON.parse(await readFile(downloadedPath, 'utf8')) as { profile: { personName: string }; medications: Array<{ name: string }> };
   expect(backup.profile.personName).toBe('Evelyn Parker');
   expect(backup.medications.map((medicine) => medicine.name)).toContain('Lisinopril');
+});
+
+test('@claim:no-tracking-code ships no advertising or analytics code', async ({ page }) => {
+  const requests: string[] = [];
+  page.on('request', (request) => requests.push(request.url()));
+  await page.goto('/demo');
+  await page.getByRole('button', { name: 'Edit Lisinopril', exact: true }).first().click();
+  await page.getByLabel(/Notes from the label/).fill('Checked without sending this record.');
+  await page.getByRole('button', { name: 'Save change' }).click();
+  await page.goto('/privacy');
+  await expect(page.getByText('This app includes no advertising or analytics code.')).toBeVisible();
+
+  const indexHtml = await readFile('dist/index.html', 'utf8');
+  const assetNames = await readdir('dist/assets');
+  const builtCode = (await Promise.all(assetNames
+    .filter((name) => /\.(?:js|css)$/.test(name))
+    .map((name) => readFile(`dist/assets/${name}`, 'utf8')))).join('\n');
+  const shippedText = `${indexHtml}\n${builtCode}`;
+  expect(shippedText).not.toMatch(/google-analytics|googletagmanager|gtag\s*\(|doubleclick|facebook\.net|connect\.facebook|mixpanel|segment\.com|amplitude|hotjar|clarity\.ms|posthog|plausible\.io|adservice/i);
+  expect(requests.every((url) => new URL(url).origin === 'http://127.0.0.1:4173')).toBe(true);
+});
+
+test('@claim:storage-and-delete stores the stated local data and browser clearing removes it', async ({ page, context }) => {
+  await page.route('https://api.sociobot.in/api/v1/products/medication-handoff-card/verify**', (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ valid: true, reason: 'ok', expires_at: null })
+  }));
+  await page.goto('/?license=storage-test-license');
+  await expect(page).toHaveURL('/');
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('sb_license:medication-handoff-card'))).toBe('storage-test-license');
+  await page.getByLabel(/Person’s name/).fill('Storage Test Person');
+  await page.getByLabel(/Person keeping this card/).fill('Storage Test Keeper');
+  await page.getByRole('button', { name: 'Save names' }).click();
+  await page.getByRole('button', { name: 'Add first medicine' }).click();
+  await page.getByLabel(/Medicine name/).fill('Storage Test Medicine');
+  await page.getByLabel(/Dose or strength/).fill('5 mg');
+  await page.getByLabel(/When taken/).fill('Each morning');
+  await page.getByRole('button', { name: 'Add to card' }).click();
+  await page.getByRole('button', { name: 'Confirm current list' }).click();
+  await page.getByLabel(/I checked all 1 current medicine/).check();
+  await page.getByRole('button', { name: 'Confirm today' }).click();
+  await page.getByRole('button', { name: 'Open backup settings' }).click();
+  await page.getByRole('button', { name: /Use (dark|light) theme/ }).click();
+
+  const stored = await page.evaluate(async () => {
+    const values = await new Promise<{ profile: unknown; medications: unknown[]; changes: unknown[] }>((resolve, reject) => {
+      const opening = indexedDB.open('medication-handoff-card');
+      opening.onerror = () => reject(opening.error);
+      opening.onsuccess = () => {
+        const db = opening.result;
+        const transaction = db.transaction(['profile', 'medications', 'changes']);
+        const profile = transaction.objectStore('profile').get('profile');
+        const medications = transaction.objectStore('medications').getAll();
+        const changes = transaction.objectStore('changes').getAll();
+        transaction.onerror = () => reject(transaction.error);
+        transaction.oncomplete = () => {
+          db.close();
+          resolve({ profile: profile.result, medications: medications.result, changes: changes.result });
+        };
+      };
+    });
+    return {
+      ...values,
+      theme: localStorage.getItem('mhc-theme'),
+      license: localStorage.getItem('sb_license:medication-handoff-card')
+    };
+  });
+  expect(stored.profile).toMatchObject({ personName: 'Storage Test Person', caregiverName: 'Storage Test Keeper', confirmedBy: 'Storage Test Keeper' });
+  expect(stored.medications).toEqual(expect.arrayContaining([expect.objectContaining({ name: 'Storage Test Medicine', dose: '5 mg' })]));
+  expect(stored.changes).toEqual(expect.arrayContaining([expect.objectContaining({ kind: 'confirmed' })]));
+  expect(stored.theme).toMatch(/light|dark/);
+  expect(stored.license).toBe('storage-test-license');
+
+  await page.goto('/privacy');
+  await expect(page.getByText('Names, medication details, confirmation details, and change history are stored in IndexedDB on your device.')).toBeVisible();
+  await expect(page.getByText('Your theme choice and optional license token are stored in localStorage.')).toBeVisible();
+  await expect(page.getByText("Clear this site's storage in your browser to delete the local record.")).toBeVisible();
+
+  const devtools = await context.newCDPSession(page);
+  await page.goto('about:blank');
+  await devtools.send('Storage.clearDataForOrigin', { origin: 'http://127.0.0.1:4173', storageTypes: 'all' });
+  await page.goto('/');
+  await expect(page.getByLabel(/Person’s name/)).toHaveValue('');
+  await expect(page.getByText('No medicines on this card yet')).toBeVisible();
+  expect(await page.evaluate(() => ({ theme: localStorage.getItem('mhc-theme'), license: localStorage.getItem('sb_license:medication-handoff-card') }))).toEqual({ theme: null, license: null });
 });
 
 test('shows required landing sections and product identity metadata', async ({ page }) => {

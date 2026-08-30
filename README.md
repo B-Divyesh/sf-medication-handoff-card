@@ -29,7 +29,7 @@ qualified clinician or pharmacist.
 
 ## Try the sample card
 
-Open [the demo](https://medication-handoff-card.sociobot.in/demo) for Evelyn
+Open [the demo](https://medication-handoff-card.sociobot.in/?demo=1) for Evelyn
 Parker's three-medicine card. Demo data uses a separate local database named
 `demo:medication-handoff-card`. The persistent demo banner can reset it or
 start a separate real card without copying the sample.
@@ -74,9 +74,11 @@ routes, and the designed 404 response for static deployment.
 
 ## Data and licensing
 
-Medication data stays in the browser unless the user downloads a backup. Plain
-`.json` backups can be opened as text. Store an encrypted-backup passphrase
-somewhere safe.
+Medication data stays in the browser unless the user downloads a backup. Card
+details use IndexedDB. Theme and optional license values use localStorage.
+Clearing this site's storage deletes them from this browser. The app includes
+no advertising or analytics code. Plain `.json` backups can be opened as text.
+Store an encrypted-backup passphrase somewhere safe.
 
 Checkout starts at the Sociobot billing API and redirects to Dodo. The live
 product is registered at $12. License checks send the token and product name,

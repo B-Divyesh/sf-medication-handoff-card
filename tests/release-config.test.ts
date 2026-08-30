@@ -49,7 +49,20 @@ describe('static deployment regressions', () => {
   });
 
   it('versions the app shell for this repair so installed cards receive the update', async () => {
-    await expect(readFile(projectFile('public/sw.js'), 'utf8')).resolves.toContain("const VERSION = 'mhc-v10'");
-    await expect(readFile(projectFile('public/manifest.webmanifest'), 'utf8')).resolves.toContain('"start_url": "/?v=9"');
+    await expect(readFile(projectFile('public/sw.js'), 'utf8')).resolves.toContain("const VERSION = 'mhc-v11'");
+    await expect(readFile(projectFile('public/manifest.webmanifest'), 'utf8')).resolves.toContain('"start_url": "/?v=10"');
+  });
+
+  it('maps every declared claim to exactly one tagged browser test', async () => {
+    const claims = JSON.parse(await readFile(projectFile('.factory/claims.json'), 'utf8')) as Array<{ id: string; test: string }>;
+    const browserTests = await readFile(projectFile('tests/e2e/app.spec.ts'), 'utf8');
+    expect(new Set(claims.map(({ id }) => id)).size).toBe(claims.length);
+    for (const claim of claims) {
+      const tag = `@claim:${claim.id}`;
+      expect(browserTests.split(tag)).toHaveLength(2);
+      expect(claim.test).toContain(`--grep ${tag}`);
+    }
+    const taggedIds = [...browserTests.matchAll(/@claim:([a-z0-9-]+)/g)].map((match) => match[1]);
+    expect(taggedIds.sort()).toEqual(claims.map(({ id }) => id).sort());
   });
 });

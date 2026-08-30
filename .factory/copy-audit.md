@@ -1,6 +1,6 @@
 # Copy audit
 
-Audited 2026-08-30 after polish round 4. Counts use whitespace-delimited
+Audited 2026-08-30 after polish round 5. Counts use whitespace-delimited
 words; hyphenated terms and numbers count as one word. No sentence exceeds 22
 words, and no copy uses a banned marketing word.
 
@@ -117,15 +117,24 @@ unambiguous without making the compact phone layout harder to scan.
 | Checkout starts at Sociobot and redirects to Dodo. | 8 | `checkout-available` |
 | If license verification reports a revoked license, encrypted backups lock again. | 11 | `revoked-license-lock` |
 | If verification reports a revoked license, encrypted backups lock again. | 10 | `revoked-license-lock` |
+| Names, medication details, confirmation details, and change history are stored in IndexedDB on your device. | 15 | `storage-and-delete` |
+| Your theme choice and optional license token are stored in localStorage. | 11 | `storage-and-delete` |
+| Clear this site's storage in your browser to delete the local record. | 12 | `storage-and-delete` |
+| This app includes no advertising or analytics code. | 8 | `no-tracking-code` |
+| It has no cloud account or health-data upload. | 8 | `no-account-or-cloud-copy` |
+| Use this card to communicate a medication list. | 8 | Plain instruction |
+| Medication Handoff Card records the details you enter. | 8 | `record-workflow` |
+| It does not check interactions or recommend doses. | 8 | `non-clinical-scope` |
 
-The earlier merchant-of-record, payment-privacy, and automatic refund-revocation
-sentences were removed because this product cannot prove those policy claims in
-its sandbox. The retained copy describes only observed requests and app state.
+The earlier merchant-of-record, payment-privacy, automatic refund-revocation,
+hosting-log, diagnosis, dispensing, and alert sentences were removed because
+this product cannot prove them in its sandbox. The retained copy describes
+only observed requests, storage, and app state.
 
 ## Catalog description
 
-“Build a clear, printable medication handoff card for family and clinician
-visits.” starts with a verb and is 81 characters, including its period.
+“Create a clear, printable medication handoff card for family and clinician
+visits.” starts with a verb and is 82 characters, including its period.
 
 ## Terminology
 

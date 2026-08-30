@@ -2,10 +2,10 @@ import AxeBuilder from '@axe-core/playwright';
 import { chromium } from '@playwright/test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 
 const origin = process.env.LIVE_URL ?? 'https://medication-handoff-card.sociobot.in';
-const evidenceDir = process.env.EVIDENCE_DIR ?? '.factory/evidence/polish-4-live';
+const evidenceDir = process.env.EVIDENCE_DIR ?? '.factory/evidence/polish-5-live';
 const results = {};
 await mkdir(evidenceDir, { recursive: true });
 
@@ -48,13 +48,13 @@ try {
   await page.screenshot({ path: `${evidenceDir}/demo-mobile-cold.png`, fullPage: true });
 
   await page.getByRole('button', { name: 'Edit Lisinopril', exact: true }).first().click();
-  await page.getByLabel(/Notes from the label/).fill('Live round-four isolation check.');
+  await page.getByLabel(/Notes from the label/).fill('Live round-five isolation check.');
   await page.getByRole('button', { name: 'Save change' }).click();
-  await page.locator('[data-medication-id="sample-lisinopril"]', { hasText: 'Live round-four isolation check.' }).waitFor();
-  assert.match(await page.locator('[data-medication-id="sample-lisinopril"]').innerText(), /Live round-four isolation check/);
+  await page.locator('[data-medication-id="sample-lisinopril"]', { hasText: 'Live round-five isolation check.' }).waitFor();
+  assert.match(await page.locator('[data-medication-id="sample-lisinopril"]').innerText(), /Live round-five isolation check/);
   await page.getByRole('button', { name: 'Reset demo' }).click();
   await page.locator('[data-medication-id="sample-lisinopril"]', { hasText: 'Take as listed on the pharmacy label.' }).waitFor();
-  assert.doesNotMatch(await page.locator('[data-medication-id="sample-lisinopril"]').innerText(), /Live round-four isolation check/);
+  assert.doesNotMatch(await page.locator('[data-medication-id="sample-lisinopril"]').innerText(), /Live round-five isolation check/);
   await page.getByRole('link', { name: 'Start for real' }).click();
   await page.getByLabel(/Person’s name/).waitFor();
   assert.equal(await page.getByRole('heading', { name: 'Evelyn Parker' }).count(), 0);
@@ -79,6 +79,8 @@ try {
   assert.equal(await routePage.locator('#route-announcer').textContent(), 'Privacy page');
   await routePage.getByText('When you verify a paid license, the app sends only the license token and product name to the Sociobot billing API.').waitFor();
   await routePage.getByText('Checkout starts at Sociobot and redirects to Dodo.').waitFor();
+  await routePage.getByText('This app includes no advertising or analytics code.').waitFor();
+  assert.equal(await routePage.getByText(/standard short-lived request logs/i).count(), 0);
   assert.equal(await routePage.getByText(/merchant of record|handles payment and refunds|refund revokes/i).count(), 0);
   await routePage.screenshot({ path: `${evidenceDir}/privacy-desktop.png`, fullPage: true });
   await routePage.goBack();
@@ -89,6 +91,8 @@ try {
   assert.equal(await routePage.title(), 'Terms — Medication Handoff Card');
   assert.equal(await routePage.locator('link[rel="canonical"]').getAttribute('href'), `${origin}/terms`);
   await routePage.getByText('If license verification reports a revoked license, encrypted backups lock again.').waitFor();
+  await routePage.getByText('It does not check interactions or recommend doses.').waitFor();
+  assert.equal(await routePage.getByText(/diagnose, dispense|send alerts/i).count(), 0);
   assert.equal(await routePage.getByText(/merchant of record|handles payment and refunds|refund revokes/i).count(), 0);
   await routePage.screenshot({ path: `${evidenceDir}/terms-desktop.png`, fullPage: true });
 
@@ -130,6 +134,59 @@ try {
   results['license-verification-data'] = 'pass';
   await privacyContext.close();
 
+  const storageContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const storagePage = await storageContext.newPage();
+  attachErrors(storagePage, 'storage-delete');
+  await storagePage.route('https://api.sociobot.in/api/v1/products/medication-handoff-card/verify**', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ valid: true, reason: 'ok', expires_at: null }) }));
+  await storagePage.goto(`${origin}/?license=live-storage-fixture`);
+  await storagePage.waitForFunction(() => localStorage.getItem('sb_license:medication-handoff-card') === 'live-storage-fixture');
+  await storagePage.getByLabel(/Person’s name/).fill('Live Storage Test');
+  await storagePage.getByLabel(/Person keeping this card/).fill('Live Test Keeper');
+  await storagePage.getByRole('button', { name: 'Save names' }).click();
+  await storagePage.getByRole('button', { name: 'Add first medicine' }).click();
+  await storagePage.getByLabel(/Medicine name/).fill('Live Test Medicine');
+  await storagePage.getByLabel(/Dose or strength/).fill('5 mg');
+  await storagePage.getByLabel(/When taken/).fill('Each morning');
+  await storagePage.getByRole('button', { name: 'Add to card' }).click();
+  await storagePage.getByRole('button', { name: 'Confirm current list' }).click();
+  await storagePage.getByLabel(/I checked all 1 current medicine/).check();
+  await storagePage.getByRole('button', { name: 'Confirm today' }).click();
+  await storagePage.getByRole('button', { name: 'Open backup settings' }).click();
+  await storagePage.getByRole('button', { name: /Use (dark|light) theme/ }).click();
+  const storageState = await storagePage.evaluate(async () => {
+    const record = await new Promise((resolve, reject) => {
+      const opening = indexedDB.open('medication-handoff-card');
+      opening.onerror = () => reject(opening.error);
+      opening.onsuccess = () => {
+        const db = opening.result;
+        const transaction = db.transaction(['profile', 'medications', 'changes']);
+        const profile = transaction.objectStore('profile').get('profile');
+        const medications = transaction.objectStore('medications').getAll();
+        const changes = transaction.objectStore('changes').getAll();
+        transaction.onerror = () => reject(transaction.error);
+        transaction.oncomplete = () => { db.close(); resolve({ profile: profile.result, medications: medications.result, changes: changes.result }); };
+      };
+    });
+    return { record, theme: localStorage.getItem('mhc-theme'), license: localStorage.getItem('sb_license:medication-handoff-card') };
+  });
+  assert.equal(storageState.record.profile.personName, 'Live Storage Test');
+  assert.equal(storageState.record.profile.confirmedBy, 'Live Test Keeper');
+  assert.equal(storageState.record.medications[0].name, 'Live Test Medicine');
+  assert(storageState.record.changes.some((change) => change.kind === 'confirmed'));
+  assert.match(storageState.theme ?? '', /light|dark/);
+  assert.equal(storageState.license, 'live-storage-fixture');
+  await storagePage.goto(`${origin}/privacy`);
+  await storagePage.getByText("Clear this site's storage in your browser to delete the local record.").waitFor();
+  const devtools = await storageContext.newCDPSession(storagePage);
+  await storagePage.goto('about:blank');
+  await devtools.send('Storage.clearDataForOrigin', { origin, storageTypes: 'all' });
+  await storagePage.goto(`${origin}/`);
+  assert.equal(await storagePage.getByLabel(/Person’s name/).inputValue(), '');
+  await storagePage.getByText('No medicines on this card yet').waitFor();
+  assert.deepEqual(await storagePage.evaluate(() => ({ theme: localStorage.getItem('mhc-theme'), license: localStorage.getItem('sb_license:medication-handoff-card') })), { theme: null, license: null });
+  results['storage-and-delete'] = 'pass';
+  await storageContext.close();
+
   const revokedContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
   await revokedContext.addInitScript(() => {
     localStorage.setItem('sb_license:medication-handoff-card', 'previously-valid-token');
@@ -167,7 +224,7 @@ try {
   const notFoundContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const notFoundPage = await notFoundContext.newPage();
   attachErrors(notFoundPage, '404');
-  const notFoundResponse = await notFoundPage.goto(`${origin}/polish-4-not-found`);
+  const notFoundResponse = await notFoundPage.goto(`${origin}/polish-5-not-found`);
   assert.equal(notFoundResponse?.status(), 404);
   assert.equal(await notFoundPage.title(), 'Page not found — Medication Handoff Card');
   assert.equal(await notFoundPage.locator('h1').count(), 1);
@@ -185,6 +242,10 @@ try {
   results['checkout-redirect'] = 'pass';
 
   const localHtml = await readFile('dist/index.html', 'utf8');
+  const assetNames = await readdir('dist/assets');
+  const shippedText = `${localHtml}\n${(await Promise.all(assetNames.filter((name) => /\.(?:js|css)$/.test(name)).map((name) => readFile(`dist/assets/${name}`, 'utf8')))).join('\n')}`;
+  assert.doesNotMatch(shippedText, /google-analytics|googletagmanager|gtag\s*\(|doubleclick|facebook\.net|connect\.facebook|mixpanel|segment\.com|amplitude|hotjar|clarity\.ms|posthog|plausible\.io|adservice/i);
+  results['no-tracking-code'] = 'pass';
   const scriptPath = localHtml.match(/src="(\/assets\/index-[^"]+\.js)"/)?.[1];
   assert(scriptPath);
   const localScript = await readFile(`dist${scriptPath}`);

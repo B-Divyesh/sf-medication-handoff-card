@@ -117,5 +117,19 @@
     "where": "Privacy page, Open backup settings dialog, README",
     "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:plain-json-readable",
     "sandbox": "Fresh demo downloads JSON and parses the downloaded text to assert its named owner and medicine are readable without a passphrase."
+  },
+  {
+    "id": "no-tracking-code",
+    "claim": "The app includes no advertising or analytics code.",
+    "where": "Privacy page, README",
+    "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:no-tracking-code",
+    "sandbox": "Fresh demo edit and Privacy visit record every outgoing request and assert all are same-origin; the built HTML, JavaScript, and CSS are scanned for common advertising and analytics SDKs and origins."
+  },
+  {
+    "id": "storage-and-delete",
+    "claim": "Card details use IndexedDB, theme and license use localStorage, and clearing site storage removes them.",
+    "where": "Privacy page, README",
+    "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:storage-and-delete",
+    "sandbox": "Fresh real card saves names, medicine, confirmation, theme, and fixture license; the test inspects IndexedDB/localStorage, clears all origin storage through the browser, reloads, and observes an empty card with no preferences or license."
   }
 ]
