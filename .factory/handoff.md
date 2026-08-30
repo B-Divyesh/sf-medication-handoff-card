@@ -1,119 +1,113 @@
-# Medication Handoff Card — review 5 handoff
-
-## Current review outcome
-
-**FAIL — review 5 found three unlisted legal-page claims.** This reviewer did
-not change product source; it added `.factory/review-5.md` and this handoff
-update only.
-
-- **F-5-1:** Privacy promises no advertising/tracking/analytics and makes a
-  hosting-log statement without a matching claim test.
-- **F-5-2:** Terms promises no diagnosis, dispensing, or alerts beyond the
-  tested interaction/dose boundary.
-- **F-5-3:** Privacy specifies storage locations and browser-storage deletion
-  without a matching observable storage/deletion test.
-
-See `.factory/review-5.md` for exact quotes and concrete test/copy changes.
-All prior review findings were rechecked live and in source; none regressed.
-
-## Previous release context
+# Medication Handoff Card — polish round 5 handoff
 
 ## Outcome
 
-**PASS — all review findings are closed and the repaired PWA is live.**
+**PASS — all findings from adversarial reviews 1–5 are closed, and the repair
+is live.**
 
-The round 4 repair adds direct claim coverage for license-request privacy and
-revoked-license locking. Privacy, Terms, settings, and README copy now state
-only what the sandbox proves. All earlier fixes remain intact: plain first
-screen, isolated one-click demo, real routing and route metadata, focus and
-Back behavior, complete HTTP 404, legal links, mobile layout, local storage,
-offline reload, print/PDF, and backup/restore.
+Round 5 adds direct claim coverage for shipped advertising/analytics code and
+for the complete storage/deletion promise. The Privacy page no longer guesses
+about hosting logs. Terms now states only the tested record-only boundary. All
+earlier work remains intact: plain first-screen wording, one-click isolated
+`?demo=1`, reset and real-card exit, per-route metadata and focus, HTTP 404,
+legal links, responsive mobile layout, local persistence, offline reload,
+one-page print/PDF, backup/restore, and paid encrypted export.
 
-The kitchen-table document visual identity is preserved. A final live audit
-also found and fixed transient low contrast during row entrance by keeping text
-fully opaque while retaining the short translate motion.
+The existing kitchen-table paper, ink, coral, and serif visual identity is
+unchanged. The artifact remains a static local-first PWA.
 
 ## Source and deployment
 
-- Product repair commits: `6f0ba7d`, `b0a0194`.
-- Branch: `main`; both repair commits pushed to `origin/main`.
+- Candidate repaired: `128edbfd6fc265032e162601baf2a2102cc1e687`.
+- Review commit: `edd4b3b262e918ab3c0c98ec1a78a09740ea839e`.
+- Product repair commit: `415f82b`.
+- Branch: `main`; repair pushed to `origin/main`.
 - Deploy command: `/opt/fleet/lib/deploy-static.sh medication-handoff-card dist`.
 - Azure Static Web App: `sf-medication-handoff-card`, resource group `sociobot`.
-- Final deployment ID: `228ef627-2b20-4f07-9db1-1c1c003bde6c`.
+- Deployment ID: `db0a8f1c-1ed8-4a46-95a8-a70a5fcb37da`.
 - Default host: <https://delightful-water-039582310.7.azurestaticapps.net>.
 - Production URL: <https://medication-handoff-card.sociobot.in>.
-- Production bundles: `index-c_0VTt33.js`, `index-D3mHgyMf.css`.
+- Production bundles: `index-CPJ1U27j.js`, `index-D3mHgyMf.css`.
 - Live/local JavaScript SHA-256:
-  `8832c4d37f4fbdce99c3a22bfdbcef7dc03e9a482652473ece3038c243f14587`.
+  `51c87f98254600282e1899badd8bacc73f2e4689724050a807a0a3a92c8d5147`.
 
 ## Exact verification evidence
 
-### Clean-clone claims
+### Clean-clone claim contract
 
-All 17 literal commands in `.factory/claims.json` passed from final clean clone
-`/tmp/mhc-polish4-final-RobySS/repo`. Each command ran its own clean
-`npm ci --ignore-scripts --no-audit --no-fund` and the tagged test in both the
-desktop and 390×844 browser projects.
+All 19 literal commands in `.factory/claims.json` passed from clean clone
+`/tmp/mhc-polish5-claims-q7PND1/repo`. Each command performed its own
+`npm ci --ignore-scripts --no-audit --no-fund`; each tagged test passed in the
+desktop and 390×844 projects.
 
-The 17 IDs are `demo-isolation`, `local-record`, `offline-reload`,
-`json-backup`, `full-history-backup`, `print-card`, `dialog-keyboard`,
-`encrypted-backup`, `license-verification-data`, `revoked-license-lock`,
-`record-workflow`, `adaptive-interface`, `checkout-available`,
-`core-features-free`, `non-clinical-scope`, `no-account-or-cloud-copy`, and
-`plain-json-readable`.
+The IDs are `demo-isolation`, `local-record`, `offline-reload`, `json-backup`,
+`full-history-backup`, `print-card`, `dialog-keyboard`, `encrypted-backup`,
+`license-verification-data`, `revoked-license-lock`, `record-workflow`,
+`adaptive-interface`, `checkout-available`, `core-features-free`,
+`non-clinical-scope`, `no-account-or-cloud-copy`, `plain-json-readable`,
+`no-tracking-code`, and `storage-and-delete`.
 
 ### Full local gates
 
-- `CI=1 npm test`: **PASS** — 10 Vitest and 74 Playwright checks.
+- `CI=1 npm test`: **PASS** — 11 Vitest and 78 Playwright checks.
 - `npm run lint`: **PASS**.
 - `npm run build`: **PASS**; `dist/index.html` is at the artifact root.
-- Initial JavaScript: 45.99 kB raw / 14.28 kB gzip.
+- Initial JavaScript: 45.87 kB raw / 14.20 kB gzip.
 - CSS: 20.47 kB raw / 5.28 kB gzip.
 - Mobile hero WebP: 21.78 kB; largest fallback image: 147.37 kB.
-- Local Lighthouse demo: **100/100/100/100**; LCP 1098.45 ms, CLS 0,
-  TBT 0. Evidence: [`lighthouse-demo.json`](evidence/polish-4-local/lighthouse-demo.json).
-- Local `verify-url.sh` passed both Home and `?demo=1`; reports are under
-  [`evidence/polish-4-local`](evidence/polish-4-local).
+- Local Lighthouse demo: **100 Performance, 100 Accessibility, 100 Best
+  Practices, 100 SEO**; LCP 1152.61 ms, CLS 0, TBT 80.5 ms. Evidence:
+  [lighthouse-demo.json](evidence/polish-5-local/lighthouse-demo.json).
+- Local `verify-url.sh` passed Home, `?demo=1`, Privacy, and Terms. Reports are
+  under [polish-5-local](evidence/polish-5-local).
 
 ### Cold production checks
 
-A fresh mobile and desktop browser context opened the custom production URL
-after deployment. [`live-recheck.json`](evidence/polish-4-live/live-recheck.json)
+Fresh mobile and desktop browser contexts opened the production URL after
+deployment. [live-recheck.json](evidence/polish-5-live/live-recheck.json)
 records passes for:
 
 - first-screen wording and above-fold sample action;
-- one-click `?demo=1`, persistent banner, Reset demo, Start for real, sample
-  editing, and real/demo storage isolation;
-- route titles, canonical metadata, focus, announcements, and browser Back;
-- Privacy/Terms claim copy and absence of the removed merchant/refund claims;
-- exact license-verification request contents and revoked-license locking;
-- offline reload with the sample intact;
-- a real HTTP 404 with product shell and legal links;
+- one-click `?demo=1`, banner, Reset demo, Start for real, sample editing, and
+  real/demo storage isolation;
+- route titles, descriptions, canonical/social metadata, focus,
+  announcements, and browser Back;
+- the exact license-verification request boundary and revoked-license lock;
+- the no-advertising/no-analytics production-bundle and request scan;
+- the real-card IndexedDB/localStorage inventory and browser storage deletion;
+- offline reload with the complete sample intact;
+- the designed HTTP 404 with metadata, header/footer, and legal links;
 - the live Sociobot 303 redirect to a Dodo checkout session;
+- every shipped/internal link plus the external source link, and production
+  CSP, referrer, and nosniff headers;
 - no serious/critical axe violations on Home, Demo, Privacy, Terms, or 404;
-- no unexpected console or page errors;
-- byte identity between the deployed and local JavaScript bundle.
+- zero unexpected console/page errors;
+- byte identity between deployed and local JavaScript.
 
-Live `verify-url.sh` passed Home and `?demo=1`. Live Lighthouse scored
-**100 Performance, 100 Accessibility, 100 Best Practices, and 100 SEO**, with
-LCP 1052.65 ms, CLS 0, and TBT 57.5 ms. Evidence is under
-[`evidence/polish-4-live`](evidence/polish-4-live).
+Live `verify-url.sh` also passed Home, `?demo=1`, Privacy, and Terms. Live
+Lighthouse scored **100/100/100/100**, with LCP 1058.21 ms, CLS 0, and TBT
+31 ms. Evidence is under [polish-5-live](evidence/polish-5-live).
 
 Key screenshots:
 
-- [Cold mobile home](evidence/polish-4-live/home-mobile-cold.png)
-- [Cold mobile demo](evidence/polish-4-live/demo-mobile-cold.png)
-- [Offline mobile demo](evidence/polish-4-live/demo-offline-mobile.png)
-- [Privacy](evidence/polish-4-live/privacy-desktop.png)
-- [Terms](evidence/polish-4-live/terms-desktop.png)
-- [Revoked license](evidence/polish-4-live/revoked-license-mobile.png)
-- [Designed 404](evidence/polish-4-live/not-found-mobile.png)
+- [Cold mobile Home](evidence/polish-5-live/home-mobile-cold.png)
+- [Cold mobile demo](evidence/polish-5-live/demo-mobile-cold.png)
+- [Offline mobile demo](evidence/polish-5-live/demo-offline-mobile.png)
+- [Privacy](evidence/polish-5-live/privacy-desktop.png)
+- [Terms](evidence/polish-5-live/terms-desktop.png)
+- [Storage cleared](evidence/polish-5-live/storage-cleared-mobile.png)
+- [Revoked license](evidence/polish-5-live/revoked-license-mobile.png)
+- [Designed 404](evidence/polish-5-live/not-found-mobile.png)
+
+The full cumulative finding-to-evidence map is in
+[polish-5.md](polish-5.md).
 
 ## Run and verify
 
 ```sh
 npm ci
 CI=1 npm test
+npm run lint
 npm run build
 npm run preview
 ```
@@ -127,4 +121,4 @@ node tests/live-recheck.mjs
 ## Known gaps and next steps
 
 None. No review, product, claim, accessibility, privacy, offline, routing,
-mobile, build, or deployment issue remains open.
+mobile, build, deployment, or live-site issue remains open.

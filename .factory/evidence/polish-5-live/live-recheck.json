@@ -1,0 +1,21 @@
+{
+  "origin": "https://medication-handoff-card.sociobot.in",
+  "checkedAt": "2026-08-30T04:28:58.656Z",
+  "results": {
+    "first-screen-and-demo": "pass",
+    "demo-isolation": "pass",
+    "routes-metadata-focus": "pass",
+    "axe-home-demo-legal": "pass",
+    "license-verification-data": "pass",
+    "storage-and-delete": "pass",
+    "revoked-license-lock": "pass",
+    "offline-reload": "pass",
+    "http-404": "pass",
+    "checkout-redirect": "pass",
+    "link-crawl": "pass",
+    "security-headers": "pass",
+    "no-tracking-code": "pass",
+    "deployed-bundle-sha256": "51c87f98254600282e1899badd8bacc73f2e4689724050a807a0a3a92c8d5147",
+    "console-and-page-errors": "pass"
+  }
+}

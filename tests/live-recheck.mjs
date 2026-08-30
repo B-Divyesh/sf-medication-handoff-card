@@ -184,6 +184,7 @@ try {
   assert.equal(await storagePage.getByLabel(/Person’s name/).inputValue(), '');
   await storagePage.getByText('No medicines on this card yet').waitFor();
   assert.deepEqual(await storagePage.evaluate(() => ({ theme: localStorage.getItem('mhc-theme'), license: localStorage.getItem('sb_license:medication-handoff-card') })), { theme: null, license: null });
+  await storagePage.screenshot({ path: `${evidenceDir}/storage-cleared-mobile.png`, fullPage: true });
   results['storage-and-delete'] = 'pass';
   await storageContext.close();
 
@@ -240,6 +241,22 @@ try {
   assert.equal(checkout.status, 303);
   assert.match(checkout.headers.get('location') ?? '', /^https:\/\/checkout\.dodopayments\.com\/session\//);
   results['checkout-redirect'] = 'pass';
+
+  for (const path of ['/', '/demo', '/privacy', '/terms', '/manifest.webmanifest', '/favicon.svg']) {
+    const response = await fetch(`${origin}${path}`);
+    assert.equal(response.status, 200, `${path} returned ${response.status}`);
+  }
+  const source = await fetch('https://github.com/B-Divyesh/sf-medication-handoff-card');
+  assert.equal(source.status, 200);
+  results['link-crawl'] = 'pass';
+
+  const securityResponse = await fetch(`${origin}/`);
+  const csp = securityResponse.headers.get('content-security-policy') ?? '';
+  assert.match(csp, /default-src 'self'/);
+  assert.match(csp, /frame-ancestors 'none'/);
+  assert.equal(securityResponse.headers.get('x-content-type-options'), 'nosniff');
+  assert.equal(securityResponse.headers.get('referrer-policy'), 'strict-origin-when-cross-origin');
+  results['security-headers'] = 'pass';
 
   const localHtml = await readFile('dist/index.html', 'utf8');
   const assetNames = await readdir('dist/assets');

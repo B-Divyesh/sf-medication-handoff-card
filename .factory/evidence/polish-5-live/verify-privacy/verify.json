@@ -1,0 +1,14 @@
+{
+  "url": "https://medication-handoff-card.sociobot.in/privacy",
+  "loadMs": 737,
+  "errors": [],
+  "a11y": {
+    "title": "Privacy — Medication Handoff Card",
+    "lang": "en",
+    "h1": 1,
+    "main": true,
+    "imgsMissingAlt": 0,
+    "buttonsUnlabeled": 0,
+    "textLength": 1244
+  }
+}

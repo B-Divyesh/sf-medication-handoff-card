@@ -1,0 +1,14 @@
+{
+  "url": "https://medication-handoff-card.sociobot.in/terms",
+  "loadMs": 561,
+  "errors": [],
+  "a11y": {
+    "title": "Terms — Medication Handoff Card",
+    "lang": "en",
+    "h1": 1,
+    "main": true,
+    "imgsMissingAlt": 0,
+    "buttonsUnlabeled": 0,
+    "textLength": 1290
+  }
+}
