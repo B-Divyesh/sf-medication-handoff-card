@@ -93,14 +93,14 @@ function legalPage(kind: 'privacy' | 'terms'): string {
       ${privacy ? `
         <p class="lede">Your medication record stays in this browser unless you choose to export it.</p>
         <h2>What is stored</h2><p>Names, medication details, confirmation details, and change history are stored in IndexedDB on your device. Your theme choice and optional license token are stored in localStorage.</p>
-        <h2>What leaves your device</h2><p>The record itself is never sent to us. When you verify a paid license, only the license token is sent to the Sociobot billing API. The hosted checkout is operated by Sociobot, with Dodo as merchant of record, under their payment privacy terms.</p>
+        <h2>What leaves your device</h2><p>The record itself is never sent to us. When you verify a paid license, the app sends only the license token and product name to the Sociobot billing API. It sends no card details. Checkout starts at Sociobot and redirects to Dodo.</p>
         <h2>Exports and deletion</h2><p>Downloaded backups are controlled by you. Plain JSON backups can be opened as text. Store any encrypted-backup passphrase somewhere safe. Clear this site's storage in your browser to delete the local record.</p>
         <h2>Analytics and health data</h2><p>This app includes no advertising, tracking SDK, analytics script, cloud account, or health-data upload. Your browser or hosting provider may keep standard short-lived request logs.</p>
       ` : `
         <p class="lede">This tool helps people communicate a medication list. It does not provide healthcare.</p>
         <h2>Not medical advice</h2><p>Medication Handoff Card does not check interactions, recommend doses, diagnose, dispense, or send alerts. Confirm all medication decisions with a qualified clinician or pharmacist. In an emergency, contact local emergency services.</p>
         <h2>Your responsibility</h2><p>You are responsible for entering, checking, sharing, and safeguarding the record. A printed or exported list can become outdated; always check its confirmation date.</p>
-        <h2>One-time unlock</h2><p>The optional $12 one-time purchase unlocks encrypted backups. The card, print view, and plain JSON backup are free. Sociobot/Dodo is the merchant of record and handles payment and refunds; a refund revokes the associated license.</p>
+        <h2>One-time unlock</h2><p>The optional $12 one-time purchase unlocks encrypted backups. The card, print view, and plain JSON backup are free. Checkout starts at Sociobot and redirects to Dodo. If license verification reports a revoked license, encrypted backups lock again.</p>
         <h2>Availability and warranty</h2><p>The software is provided “as is” under the MIT License, without warranty. Local browser data can be lost if site data is cleared, so keep a backup.</p>
       `}
       <p><a class="text-link" href="/">← Return to your card</a></p>
@@ -108,7 +108,7 @@ function legalPage(kind: 'privacy' | 'terms'): string {
 }
 
 function footer(): string {
-  return `<footer><p>Your health record stays in this browser during normal use.</p><nav aria-label="Legal"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="https://github.com/B-Divyesh/sf-medication-handoff-card" rel="noreferrer">Source<span class="sr-only"> (external)</span></a></nav><p class="generation-note">Scene generated for this product; no person or brand is depicted. Built by Param Factory · v1.0.4</p></footer>`;
+  return `<footer><p>Your health record stays in this browser during normal use.</p><nav aria-label="Legal"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="https://github.com/B-Divyesh/sf-medication-handoff-card" rel="noreferrer">Source<span class="sr-only"> (external)</span></a></nav><p class="generation-note">Scene generated for this product; no person or brand is depicted. Built by Param Factory · v1.0.5</p></footer>`;
 }
 
 function profileSection(): string {
@@ -191,7 +191,7 @@ function settingsDialog(): string {
     <section class="settings-section" aria-labelledby="plain-backup"><h3 id="plain-backup">Free backup</h3><p id="restore-help">Plain JSON is readable and portable. Choose only a Medication Handoff Card .json or .mhc backup.</p><div class="inline-actions"><button class="button secondary" type="button" id="export-json">${icon('download')} Download JSON</button><label class="button quiet file-button">Restore a backup<input id="import-file" type="file" accept=".json,.mhc,application/json" aria-describedby="restore-help"></label></div></section>
     <section class="settings-section paid-section" aria-labelledby="secure-backup"><div class="paid-heading"><div><p class="eyebrow">One-time unlock · $12</p><h3 id="secure-backup">Encrypted backup</h3></div><span class="status-chip ${state.paid ? 'unlocked' : ''}">${state.paid ? 'Unlocked' : `${icon('lock')} Locked`}</span></div><p>Protect a backup with a passphrase. Core records, printing, and plain backup stay free.</p>
       ${state.paid ? `<label><span>Backup passphrase</span><input id="backup-passphrase" type="password" minlength="10" autocomplete="new-password" placeholder="At least 10 characters"><small>Store this passphrase somewhere safe.</small></label><button class="button primary" type="button" id="export-encrypted">${icon('lock')} Download encrypted backup</button>` : `<a class="button primary" href="${checkoutUrl}">Unlock encrypted backups — $12</a><form id="license-form" class="license-form"><label><span>Already purchased? Paste your license</span><input name="license" required autocomplete="off" spellcheck="false"></label><button class="button secondary" type="submit">Verify license</button></form>`}
-      <p class="fine-print">One-time purchase. Sociobot/Dodo is the merchant of record and handles refunds. <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></p>
+      <p class="fine-print">One-time purchase. Checkout starts at Sociobot and redirects to Dodo. If verification reports a revoked license, encrypted backups lock again. <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></p>
     </section>
     <section class="settings-section"><h3>Appearance</h3><button class="button quiet" type="button" id="theme-toggle-settings">${icon('moon')} <span>${themeActionLabel()}</span></button></section>
     <div class="form-actions"><button class="button quiet" type="button" data-close-dialog>Close settings</button></div>

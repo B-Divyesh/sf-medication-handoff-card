@@ -78,8 +78,9 @@ Medication data stays in the browser unless the user downloads a backup. Plain
 `.json` backups can be opened as text. Store an encrypted-backup passphrase
 somewhere safe.
 
-The paid flow uses only the Sociobot billing API. The live product is registered
-at $12. The checkout link is derived from the product slug, and returned
+Checkout starts at the Sociobot billing API and redirects to Dodo. The live
+product is registered at $12. License checks send the token and product name,
+not card details. A revoked result locks encrypted backups again. Returned
 licenses are stored as `sb_license:medication-handoff-card`.
 
 ## Project map

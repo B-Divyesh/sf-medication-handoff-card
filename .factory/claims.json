@@ -56,6 +56,20 @@
     "sandbox": "Fresh /demo flow stubs a valid Sociobot license response, downloads the encrypted backup, and asserts its encrypted format does not expose a sample medicine."
   },
   {
+    "id": "license-verification-data",
+    "claim": "License verification sends only the license token and product name to Sociobot, never card details.",
+    "where": "Privacy page, README",
+    "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:license-verification-data",
+    "sandbox": "Fresh /demo flow records the explicit license-verification request and asserts its method, endpoint, only query field, empty body, and absence of all sample card values."
+  },
+  {
+    "id": "revoked-license-lock",
+    "claim": "Encrypted backups lock when verification reports a revoked license.",
+    "where": "Open backup settings dialog, Terms, README",
+    "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:revoked-license-lock",
+    "sandbox": "Fresh /demo flow starts with a stale valid verdict, returns a recorded revoked verification fixture, and asserts encrypted export is removed while free backup remains available."
+  },
+  {
     "id": "record-workflow",
     "claim": "The card records medicine details, confirmations, and dated change history across reloads.",
     "where": "Product, README",
@@ -71,8 +85,8 @@
   },
   {
     "id": "checkout-available",
-    "claim": "Encrypted backups cost $12 once through Sociobot checkout.",
-    "where": "Home facts, paid section, Open backup settings dialog, Terms, README",
+    "claim": "Encrypted backups cost $12 once; checkout starts at Sociobot and redirects to Dodo.",
+    "where": "Home facts, paid section, Open backup settings dialog, Privacy, Terms, README",
     "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:checkout-available",
     "sandbox": "Fresh home page checks the exact price and confirms the production Sociobot endpoint redirects to a Dodo checkout session."
   },

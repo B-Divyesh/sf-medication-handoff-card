@@ -311,6 +311,63 @@ test('@claim:encrypted-backup restores a one-time license and creates an encrypt
   expect(encrypted).not.toContain('Lisinopril');
 });
 
+test('@claim:license-verification-data sends only the license token and product name, never card details', async ({ page }) => {
+  const verificationRequests: Array<{ method: string; url: string; body: string | null }> = [];
+  await page.route('https://api.sociobot.in/api/v1/products/medication-handoff-card/verify**', (route) => {
+    const request = route.request();
+    verificationRequests.push({ method: request.method(), url: request.url(), body: request.postData() });
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ valid: true, reason: 'ok', expires_at: null })
+    });
+  });
+
+  await page.goto('/demo');
+  await expect(page.getByRole('heading', { name: 'Evelyn Parker' })).toBeVisible();
+  await page.getByRole('button', { name: 'Open backup settings' }).click();
+  await page.getByLabel('Already purchased? Paste your license').fill('test-license-token');
+  await page.getByRole('button', { name: 'Verify license' }).click();
+  await expect(page.getByText('Unlocked', { exact: true })).toBeVisible();
+  await expect.poll(() => verificationRequests.length).toBe(1);
+
+  const request = verificationRequests[0]!;
+  const url = new URL(request.url);
+  expect(request.method).toBe('GET');
+  expect(url.origin).toBe('https://api.sociobot.in');
+  expect(url.pathname).toBe('/api/v1/products/medication-handoff-card/verify');
+  expect([...url.searchParams.keys()]).toEqual(['license']);
+  expect(url.searchParams.get('license')).toBe('test-license-token');
+  expect(request.body).toBeNull();
+  expect(decodeURIComponent(`${url.pathname}${url.search}`)).not.toMatch(/Evelyn|Jordan|Lisinopril|Metformin|Vitamin D3/i);
+  await page.goto('/privacy');
+  await expect(page.getByText('When you verify a paid license, the app sends only the license token and product name to the Sociobot billing API.')).toBeVisible();
+  await expect(page.getByText('It sends no card details.')).toBeVisible();
+});
+
+test('@claim:revoked-license-lock locks encrypted backups when verification reports a revoked license', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('sb_license:medication-handoff-card', 'previously-valid-token');
+    localStorage.setItem('sb_license_verdict:medication-handoff-card', JSON.stringify({ valid: true, checkedAt: Date.now() - 172_800_000 }));
+  });
+  await page.route('https://api.sociobot.in/api/v1/products/medication-handoff-card/verify**', (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ valid: false, reason: 'revoked', expires_at: null })
+  }));
+
+  await page.goto('/demo');
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('sb_license_verdict:medication-handoff-card') ?? '{}').valid)).toBe(false);
+  await expect(page.getByRole('status')).toContainText('License no longer active.');
+  await page.getByRole('button', { name: 'Open backup settings' }).click();
+  await expect(page.getByText('Locked', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Download JSON' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Download encrypted backup' })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Unlock encrypted backups — $12' })).toBeVisible();
+  await page.goto('/terms');
+  await expect(page.getByText('If license verification reports a revoked license, encrypted backups lock again.')).toBeVisible();
+});
+
 test('keeps encrypted backup locked when a first-time license verification is rate limited', async ({ page }) => {
   await page.route('https://api.sociobot.in/api/v1/products/medication-handoff-card/verify**', (route) => route.fulfill({
     status: 429,
@@ -522,6 +579,8 @@ test('@claim:checkout-available opens the live $12 Sociobot checkout', async ({ 
   const response = await request.get(await link.getAttribute('href') as string, { maxRedirects: 0 });
   expect(response.status()).toBe(303);
   expect(response.headers().location).toMatch(/^https:\/\/checkout\.dodopayments\.com\/session\//);
+  await page.goto('/privacy');
+  await expect(page.getByText('Checkout starts at Sociobot and redirects to Dodo.')).toBeVisible();
 });
 
 test('@claim:core-features-free keeps the card, print view, and JSON backup available without a license', async ({ page }) => {

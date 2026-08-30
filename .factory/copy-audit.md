@@ -1,6 +1,6 @@
 # Copy audit
 
-Audited 2026-08-30 after polish round 3. Counts use whitespace-delimited
+Audited 2026-08-30 after polish round 4. Counts use whitespace-delimited
 words; hyphenated terms and numbers count as one word. No sentence exceeds 22
 words, and no copy uses a banned marketing word.
 
@@ -108,10 +108,24 @@ unambiguous without making the compact phone layout harder to scan.
 | Use light theme | 3 | Names the next result; F-3-3 closed |
 | Close settings | 2 | Result-naming button |
 
+## License and legal copy
+
+| Copy | Words | Result |
+| --- | ---: | --- |
+| When you verify a paid license, the app sends only the license token and product name to the Sociobot billing API. | 21 | `license-verification-data` |
+| It sends no card details. | 5 | `license-verification-data` |
+| Checkout starts at Sociobot and redirects to Dodo. | 8 | `checkout-available` |
+| If license verification reports a revoked license, encrypted backups lock again. | 11 | `revoked-license-lock` |
+| If verification reports a revoked license, encrypted backups lock again. | 10 | `revoked-license-lock` |
+
+The earlier merchant-of-record, payment-privacy, and automatic refund-revocation
+sentences were removed because this product cannot prove those policy claims in
+its sandbox. The retained copy describes only observed requests and app state.
+
 ## Catalog description
 
-“Make a clear, printable medication handoff card for family and clinician
-visits.” starts with a verb and is 80 characters, including its period.
+“Build a clear, printable medication handoff card for family and clinician
+visits.” starts with a verb and is 81 characters, including its period.
 
 ## Terminology
 
