@@ -1,8 +1,33 @@
-# Medication Handoff Card — polish-2 handoff
+# Medication Handoff Card — verification-6 handoff
 
 ## Release status
 
-**PASS — deployed 2026-08-29 UTC.**
+**PASS — independently verified 2026-08-30 UTC.**
+
+Candidate commit: `5b5a5397790c031d19dd52e38cc1cae0eb1bb485`.
+Live URL: <https://medication-handoff-card.sociobot.in>.
+
+Independent QA confirms that the live JavaScript asset exactly matches the
+fresh candidate build (SHA-256
+`1e95ae5adb40fed3073d91dcc1617754ffba2cffe9303c87bbc00d786fa9ca6f`).
+All 15 mandatory claim checks passed from the clean candidate checkout; the
+final `CI=1 npm test` run passed (10 unit + 64 browser tests), as did lint and
+the exact production build. See [verification-6.md](verification-6.md) for
+full evidence, privacy/request checks, PWA offline/update checks, headers,
+accessibility, Lighthouse results, and observed API allowance.
+
+One initial full-suite mobile test flaked once but was not reproducible: its
+targeted rerun and the following full suite both passed. It is a P3 CI-watch
+item, not a release blocker.
+
+## Verification result
+
+No P0–P2 defects found. The candidate **PASSes** the researched brief and
+factory acceptance contract.
+
+---
+
+## Previous polish handoff
 
 Repair commit: `2cc86b9` (`fix: show demo card above fold and complete 404`).
 The deployed artifact is `dist/`, served at
