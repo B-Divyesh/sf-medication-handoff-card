@@ -1,3 +1,38 @@
+# Medication Handoff Card — review 4 handoff
+
+## Outcome
+
+**FAIL.** This review changed no product code. It added
+[`review-4.md`](review-4.md), committed separately, and re-ran the full
+adversarial checklist against production.
+
+The first screen, one-click sample demo, reset/isolation, offline reload,
+all 15 declared claim commands, full local suite (10 Vitest + 68 Playwright),
+build, route metadata/focus, HTTP 404, links, security headers, and all prior
+review fixes verified. Three P2 gaps remain: Privacy/Terms make unlisted
+license-data, merchant/checkout, and refund/revocation assertions that their
+declared checkout test does not prove. See F-4-1–F-4-3 for exact copy and
+concrete remedies.
+
+## Verify
+
+```sh
+npm ci
+CI=1 npm test
+npm run build
+```
+
+Run each exact command in `.factory/claims.json` from a fresh clone. For the
+production demo, open `https://medication-handoff-card.sociobot.in/demo`.
+
+## Known gaps and next steps
+
+Do not mark this release accepted until F-4-1, F-4-2, and F-4-3 are resolved.
+They can be closed by claim tests with deterministic billing fixtures, or by
+removing/narrowing the untestable payment-policy copy.
+
+---
+
 # Medication Handoff Card — verification 7 handoff
 
 ## Current release decision
