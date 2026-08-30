@@ -49,7 +49,7 @@ describe('static deployment regressions', () => {
   });
 
   it('versions the app shell for this repair so installed cards receive the update', async () => {
-    await expect(readFile(projectFile('public/sw.js'), 'utf8')).resolves.toContain("const VERSION = 'mhc-v9'");
-    await expect(readFile(projectFile('public/manifest.webmanifest'), 'utf8')).resolves.toContain('"start_url": "/?v=8"');
+    await expect(readFile(projectFile('public/sw.js'), 'utf8')).resolves.toContain("const VERSION = 'mhc-v10'");
+    await expect(readFile(projectFile('public/manifest.webmanifest'), 'utf8')).resolves.toContain('"start_url": "/?v=9"');
   });
 });

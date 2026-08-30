@@ -110,7 +110,7 @@ test('rejects whitespace-only required medicine, stop, and confirmation values b
 
 test('passes serious accessibility checks on the main and legal pages', async ({ page }, testInfo) => {
   await page.goto('/');
-  const results = await new AxeBuilder({ page }).exclude('.generation-note').analyze();
+  const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? '')),
     `Accessibility violations in ${testInfo.project.name}`).toEqual([]);
 
@@ -132,6 +132,14 @@ test('passes serious accessibility checks in the populated dark demo', async ({ 
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? '')),
     `Dark demo accessibility violations in ${testInfo.project.name}`).toEqual([]);
+});
+
+test('keeps text contrast valid while demo rows enter', async ({ page }, testInfo) => {
+  await page.goto('/demo');
+  await expect(page.getByRole('heading', { name: 'Evelyn Parker' })).toBeVisible();
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? '')),
+    `Entrance-state accessibility violations in ${testInfo.project.name}`).toEqual([]);
 });
 
 test('passes serious accessibility checks after changing to dark theme in open settings', async ({ page }, testInfo) => {

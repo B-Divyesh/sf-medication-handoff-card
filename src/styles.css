@@ -288,8 +288,8 @@ footer nav { display: flex; flex-wrap: wrap; gap: 20px; }
 .loading-state { min-height: 100vh; display: grid; place-items: center; color: var(--muted); }
 .print-sheet { display: none; }
 
-@keyframes settle { from { opacity: 0; transform: translateY(5px); } }
-@keyframes dialog-in { from { opacity: 0; transform: scale(.985) translateY(5px); } }
+@keyframes settle { from { transform: translateY(5px); } }
+@keyframes dialog-in { from { transform: scale(.985) translateY(5px); } }
 
 @media (max-width: 840px) {
   .masthead { grid-template-columns: 1fr; gap: 32px; }

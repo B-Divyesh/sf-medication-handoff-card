@@ -108,7 +108,7 @@ function legalPage(kind: 'privacy' | 'terms'): string {
 }
 
 function footer(): string {
-  return `<footer><p>Your health record stays in this browser during normal use.</p><nav aria-label="Legal"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="https://github.com/B-Divyesh/sf-medication-handoff-card" rel="noreferrer">Source<span class="sr-only"> (external)</span></a></nav><p class="generation-note">Scene generated for this product; no person or brand is depicted. Built by Param Factory · v1.0.5</p></footer>`;
+  return `<footer><p>Your health record stays in this browser during normal use.</p><nav aria-label="Legal"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="https://github.com/B-Divyesh/sf-medication-handoff-card" rel="noreferrer">Source<span class="sr-only"> (external)</span></a></nav><p class="generation-note">Scene generated for this product; no person or brand is depicted. Built by Param Factory · v1.0.6</p></footer>`;
 }
 
 function profileSection(): string {

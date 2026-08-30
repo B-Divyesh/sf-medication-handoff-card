@@ -64,8 +64,9 @@ outlines and explicit labels.
 
 ## Motion policy
 
-New or edited rows settle in with 180 ms opacity/translate motion from their
-point of change; dialogs fade and scale over 160 ms. Nothing loops or flashes.
+New or edited rows settle with 180 ms translate motion from their point of
+change; dialogs scale over 160 ms. Text stays fully opaque so contrast does not
+dip during motion. Nothing loops or flashes.
 With `prefers-reduced-motion: reduce`, all transforms and smooth scrolling are
 removed and state changes are immediate; hierarchy remains through spacing,
 type, and borders.
