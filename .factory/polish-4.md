@@ -42,7 +42,7 @@ Demo, Privacy, Terms, and 404 with no serious or critical violations.
 ## Verification
 
 - Every literal command in `.factory/claims.json`: **17/17 passed** from the
-  clean clone `/tmp/mhc-polish4-claims-76E88k/repo`; each tagged browser test
+  final clean clone `/tmp/mhc-polish4-final-RobySS/repo`; each tagged browser test
   passed in desktop and 390 px projects.
 - `CI=1 npm test`: **PASS** — 10 Vitest tests and 74 Playwright tests.
 - `npm run build`: **PASS** — `dist/index.html`; JavaScript 45.99 kB raw /

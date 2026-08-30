@@ -32,8 +32,8 @@ fully opaque while retaining the short translate motion.
 
 ### Clean-clone claims
 
-All 17 literal commands in `.factory/claims.json` passed from
-`/tmp/mhc-polish4-claims-76E88k/repo`. Each command ran its own clean
+All 17 literal commands in `.factory/claims.json` passed from final clean clone
+`/tmp/mhc-polish4-final-RobySS/repo`. Each command ran its own clean
 `npm ci --ignore-scripts --no-audit --no-fund` and the tagged test in both the
 desktop and 390×844 browser projects.
 
