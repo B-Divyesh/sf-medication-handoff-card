@@ -1,3 +1,36 @@
+# Medication Handoff Card — verification 7 handoff
+
+## Current release decision
+
+**PASS — candidate `9a11a6f2ec5dac7e4ef502d1be6e9ca2aaca85d2` is accepted.**
+
+Independent verification on 2026-08-30 UTC confirmed the live product at
+<https://medication-handoff-card.sociobot.in> is byte-identical to the fresh
+candidate build: live JS
+`index-DyRqq8DO.js` SHA-256 is
+`1c4f90e0eeaaadd9ca977e614fe4cfb3d1bf8f77d2fdeeb9d6ac01a1082652fb`.
+
+- All 15 required `.factory/claims.json` commands passed from the clean
+  checkout through the demo entry point.
+- `CI=1 npm test` passed (10 Vitest + 68 Playwright); lint and the exact
+  production build passed; `dist/` was produced. JS is 14.31 kB gzip and CSS
+  is 5.28 kB gzip.
+- Cold live first-read passed at 390 px: the page says what it does, names
+  caregivers/families, and provides a one-click sample card. Live demo normal,
+  invalid/recovery, JSON export, reset, print, keyboard, 390 px, reduced
+  motion, dark mode, axe, privacy, headers/caching, and offline PWA checks
+  passed.
+- Live Lighthouse mobile: 99 Performance, 100 Accessibility, 100 Best
+  Practices, 100 SEO; LCP 1.071 s and CLS 0.
+- The only remote product endpoint, Sociobot license verification, enforced
+  the observed allowance: 30 responses then HTTP 429 with `Retry-After: 3`.
+
+There are no P0–P3 defects or known release gaps. Full exact evidence and
+re-run instructions are in [verification-7.md](verification-7.md). The
+historical polish-round handoff follows for provenance.
+
+---
+
 # Medication Handoff Card — polish round 3 handoff
 
 ## Outcome
