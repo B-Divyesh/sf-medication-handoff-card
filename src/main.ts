@@ -73,13 +73,19 @@ function icon(name: 'plus' | 'print' | 'settings' | 'edit' | 'stop' | 'check' | 
   return `<svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${paths[name]}</svg>`;
 }
 
+function themeActionLabel(): string {
+  const preference = document.documentElement.dataset.theme ?? 'system';
+  const dark = preference === 'dark' || (preference === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+  return dark ? 'Use light theme' : 'Use dark theme';
+}
+
 function legalPage(kind: 'privacy' | 'terms'): string {
   const privacy = kind === 'privacy';
   return `
     <header class="site-header legal-header">
       <a class="brand" href="/" aria-label="Medication Handoff Card home"><span class="brand-mark" aria-hidden="true">M</span><span>Medication Handoff Card</span></a>
       <nav class="site-nav" aria-label="Main navigation"><a href="/demo">Try demo</a><a href="/privacy">Privacy</a></nav>
-      <button class="icon-button" id="theme-toggle" type="button">${icon('moon')}<span>Theme</span></button>
+      <button class="icon-button" id="theme-toggle" type="button">${icon('moon')}<span>${themeActionLabel()}</span></button>
     </header>
     <main id="main-content" class="legal-page">
       <p class="eyebrow">Plain-language policy · Effective 28 August 2026</p>
@@ -102,7 +108,7 @@ function legalPage(kind: 'privacy' | 'terms'): string {
 }
 
 function footer(): string {
-  return `<footer><p>Your health record stays in this browser during normal use.</p><nav aria-label="Legal"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="https://github.com/B-Divyesh/sf-medication-handoff-card" rel="noreferrer">Source<span class="sr-only"> (external)</span></a></nav><p class="generation-note">Scene generated for this product; no person or brand is depicted. Built by Param Factory · v1.0.3</p></footer>`;
+  return `<footer><p>Your health record stays in this browser during normal use.</p><nav aria-label="Legal"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="https://github.com/B-Divyesh/sf-medication-handoff-card" rel="noreferrer">Source<span class="sr-only"> (external)</span></a></nav><p class="generation-note">Scene generated for this product; no person or brand is depicted. Built by Param Factory · v1.0.4</p></footer>`;
 }
 
 function profileSection(): string {
@@ -139,7 +145,7 @@ function medicationList(): string {
     <div class="medicine-detail"><span>When</span><strong>${escaped(medication.timing)}</strong></div>
     <div class="medicine-detail"><span>Prescriber</span><strong>${escaped(medication.prescriber || 'Not recorded')}</strong></div>
     ${medication.notes ? `<p class="medicine-notes"><span>Note</span>${escaped(medication.notes)}</p>` : ''}
-    <div class="row-actions"><button class="button quiet small" type="button" data-edit-medication="${medication.id}">${icon('edit')} Edit</button><button class="button quiet small danger-text" type="button" data-stop-medication="${medication.id}">${icon('stop')} Stop & remove</button></div>
+    <div class="row-actions"><button class="button quiet small" type="button" data-edit-medication="${medication.id}" aria-label="Edit ${escaped(medication.name)}">${icon('edit')} Edit</button><button class="button quiet small danger-text" type="button" data-stop-medication="${medication.id}" aria-label="Stop and remove ${escaped(medication.name)}">${icon('stop')} Stop & remove</button></div>
   </li>`).join('')}</ol>`;
 }
 
@@ -187,7 +193,7 @@ function settingsDialog(): string {
       ${state.paid ? `<label><span>Backup passphrase</span><input id="backup-passphrase" type="password" minlength="10" autocomplete="new-password" placeholder="At least 10 characters"><small>Store this passphrase somewhere safe.</small></label><button class="button primary" type="button" id="export-encrypted">${icon('lock')} Download encrypted backup</button>` : `<a class="button primary" href="${checkoutUrl}">Unlock encrypted backups — $12</a><form id="license-form" class="license-form"><label><span>Already purchased? Paste your license</span><input name="license" required autocomplete="off" spellcheck="false"></label><button class="button secondary" type="submit">Verify license</button></form>`}
       <p class="fine-print">One-time purchase. Sociobot/Dodo is the merchant of record and handles refunds. <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></p>
     </section>
-    <section class="settings-section"><h3>Appearance</h3><button class="button quiet" type="button" id="theme-toggle-settings">${icon('moon')} Change light or dark theme</button></section>
+    <section class="settings-section"><h3>Appearance</h3><button class="button quiet" type="button" id="theme-toggle-settings">${icon('moon')} <span>${themeActionLabel()}</span></button></section>
     <div class="form-actions"><button class="button quiet" type="button" data-close-dialog>Close settings</button></div>
   </div></dialog>`;
 }
@@ -210,13 +216,13 @@ function demoSampleTop(): string {
     </div>
     ${lisinopril ? `<article class="demo-medicine" aria-labelledby="demo-lisinopril-heading">
       <div><p class="eyebrow">Current medicine</p><p id="demo-lisinopril-heading" class="demo-medicine-name">${escaped(lisinopril.name)}</p><p class="dose">${escaped(lisinopril.dose)} · ${escaped(lisinopril.timing)}</p><p class="demo-prescriber">Prescriber: ${escaped(lisinopril.prescriber || 'Not recorded')}</p></div>
-      <button class="button quiet small" type="button" data-edit-medication="${escaped(lisinopril.id)}" aria-describedby="demo-lisinopril-heading">${icon('edit')} Edit</button>
+      <button class="button quiet small" type="button" data-edit-medication="${escaped(lisinopril.id)}" aria-label="Edit ${escaped(lisinopril.name)}">${icon('edit')} Edit</button>
     </article>` : `<div class="demo-medicine"><div><p class="eyebrow">Current medicine</p><p class="demo-medicine-name">No medicines in this restored card</p></div></div>`}
   </section>`;
 }
 
 function appPage(): string {
-  return `<header class="site-header"><a class="brand" href="/" aria-label="Medication Handoff Card home"><span class="brand-mark" aria-hidden="true">M</span><span>Medication Handoff Card</span></a><nav class="site-nav" aria-label="Main navigation"><a href="/demo">Try demo</a><a href="/privacy">Privacy</a></nav><div class="header-actions"><button class="icon-button" type="button" id="print-button" ${!state.profile.personName ? 'disabled' : ''}>${icon('print')}<span>Print / PDF</span></button><button class="icon-button" type="button" data-open-settings>${icon('settings')}<span>Backup & settings</span></button></div></header>
+  return `<header class="site-header"><a class="brand" href="/" aria-label="Medication Handoff Card home"><span class="brand-mark" aria-hidden="true">M</span><span>Medication Handoff Card</span></a><nav class="site-nav" aria-label="Main navigation"><a href="/demo">Try demo</a><a href="/privacy">Privacy</a></nav><div class="header-actions"><button class="icon-button" type="button" id="print-button" ${!state.profile.personName ? 'disabled' : ''}>${icon('print')}<span>Print / PDF</span></button><button class="icon-button" type="button" data-open-settings>${icon('settings')}<span>Open backup settings</span></button></div></header>
     <div id="offline-banner" class="offline-banner" hidden><strong>Offline:</strong> your card still works and saves on this device.</div>
     ${state.demo ? `<aside class="demo-banner" aria-label="Demo mode"><span><strong>Demo — sample data, nothing is saved to your real card.</strong> Try editing Evelyn Parker’s example list.</span><span class="demo-actions"><button class="text-button" type="button" id="reset-demo">Reset demo</button><a class="text-button" href="/" data-start-real>Start for real</a></span></aside>` : ''}
     <main id="main-content">
@@ -244,6 +250,10 @@ function toggleTheme(): void {
   const next = current === 'system' ? (prefersDark ? 'light' : 'dark') : current === 'dark' ? 'light' : 'dark';
   localStorage.setItem('mhc-theme', next);
   applyTheme();
+  document.querySelectorAll<HTMLButtonElement>('#theme-toggle, #theme-toggle-settings').forEach((button) => {
+    const label = button.querySelector('span');
+    if (label) label.textContent = themeActionLabel();
+  });
   announce(`${next === 'dark' ? 'Dark' : 'Light'} theme on.`);
 }
 

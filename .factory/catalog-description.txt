@@ -1,1 +1,1 @@
-Make and print a clear medication handoff card for family and clinician visits.
+Make a clear, printable medication handoff card for family and clinician visits.

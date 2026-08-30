@@ -23,7 +23,7 @@
   {
     "id": "json-backup",
     "claim": "A plain JSON backup can be downloaded and restored.",
-    "where": "Backup & settings, README",
+    "where": "Open backup settings dialog, README",
     "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:json-backup",
     "sandbox": "Fresh /demo flow downloads JSON, uploads a valid backup, accepts the replacement confirmation, and observes restored data."
   },
@@ -51,7 +51,7 @@
   {
     "id": "encrypted-backup",
     "claim": "A verified one-time license enables a passphrase-protected backup.",
-    "where": "Backup & settings, Terms, README",
+    "where": "Open backup settings dialog, Terms, README",
     "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:encrypted-backup",
     "sandbox": "Fresh /demo flow stubs a valid Sociobot license response, downloads the encrypted backup, and asserts its encrypted format does not expose a sample medicine."
   },
@@ -72,7 +72,7 @@
   {
     "id": "checkout-available",
     "claim": "Encrypted backups cost $12 once through Sociobot checkout.",
-    "where": "Home facts, paid section, Backup & settings, Terms, README",
+    "where": "Home facts, paid section, Open backup settings dialog, Terms, README",
     "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:checkout-available",
     "sandbox": "Fresh home page checks the exact price and confirms the production Sociobot endpoint redirects to a Dodo checkout session."
   },
@@ -100,7 +100,7 @@
   {
     "id": "plain-json-readable",
     "claim": "Downloaded plain JSON backups can be opened as text.",
-    "where": "Privacy page, Backup & settings, README",
+    "where": "Privacy page, Open backup settings dialog, README",
     "test": "npm ci --ignore-scripts --no-audit --no-fund && npm run test:e2e -- --grep @claim:plain-json-readable",
     "sandbox": "Fresh demo downloads JSON and parses the downloaded text to assert its named owner and medicine are readable without a passphrase."
   }

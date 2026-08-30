@@ -22,7 +22,7 @@ test('@claim:record-workflow creates, confirms, edits, and preserves a medicatio
   await expect(page.getByRole('heading', { name: 'Lisinopril' })).toBeVisible();
   await expect(page.getByText('Lisinopril added', { exact: true })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Edit', exact: true }).click();
+  await page.getByRole('button', { name: 'Edit Lisinopril', exact: true }).click();
   await page.getByLabel(/Dose or strength/).fill('20 mg');
   await page.getByRole('button', { name: 'Save change' }).click();
   await expect(page.getByText('20 mg', { exact: true })).toBeVisible();
@@ -50,7 +50,7 @@ test('keeps stopped medicines in the visible change history', async ({ page }) =
   await page.getByLabel(/Dose or strength/).fill('5 mg');
   await page.getByLabel(/When taken/).fill('At night');
   await page.getByRole('button', { name: 'Add to card' }).click();
-  await page.getByLabel('Medicines being taken').getByRole('button', { name: 'Stop & remove' }).click();
+  await page.getByLabel('Medicines being taken').getByRole('button', { name: 'Stop and remove Old medicine' }).click();
   await page.getByRole('textbox', { name: /What changed/ }).fill('Stopped by Dr. Lee after the appointment.');
   await page.getByRole('dialog').getByRole('button', { name: 'Stop & remove' }).click();
   await expect(page.getByText('Old medicine stopped', { exact: true })).toBeVisible();
@@ -98,7 +98,7 @@ test('rejects whitespace-only required medicine, stop, and confirmation values b
   await page.getByRole('button', { name: 'Confirm today' }).click();
   await expect(page.getByText('Current list confirmed', { exact: true })).toBeVisible();
 
-  await page.getByLabel('Medicines being taken').getByRole('button', { name: 'Stop & remove' }).click();
+  await page.getByLabel('Medicines being taken').getByRole('button', { name: 'Stop and remove Lisinopril' }).click();
   await page.getByRole('dialog').getByRole('textbox', { name: 'What changed?' }).fill('   ');
   await page.getByRole('dialog').getByRole('button', { name: 'Stop & remove' }).click();
   await expect(page.getByRole('dialog', { name: /Stop and remove Lisinopril/ })).toBeVisible();
@@ -137,8 +137,8 @@ test('passes serious accessibility checks in the populated dark demo', async ({ 
 test('passes serious accessibility checks after changing to dark theme in open settings', async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/demo');
-  await page.getByRole('button', { name: 'Backup & settings' }).click();
-  await page.getByRole('button', { name: 'Change light or dark theme' }).click();
+  await page.getByRole('button', { name: 'Open backup settings' }).click();
+  await page.getByRole('button', { name: /Use (dark|light) theme/ }).click();
   await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe('dark');
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? '')),
@@ -160,7 +160,7 @@ test('opens the completed sample card above the fold after one click', async ({ 
   await expect(page.getByRole('heading', { level: 1, name: 'Evelyn Parker' })).toBeVisible();
   await expect(page.locator('.demo-medicine-name')).toHaveText('Lisinopril');
   await expect(page.getByText('10 mg · Each morning', { exact: true })).toBeVisible();
-  await expect(page.locator('.demo-sample-top').getByRole('button', { name: 'Edit', exact: true })).toBeVisible();
+  await expect(page.locator('.demo-sample-top').getByRole('button', { name: 'Edit Lisinopril', exact: true })).toBeVisible();
   const box = await page.locator('.demo-medicine').boundingBox();
   expect(box).not.toBeNull();
   expect((box?.y ?? Infinity) + (box?.height ?? Infinity)).toBeLessThanOrEqual(await page.evaluate(() => window.innerHeight));
@@ -194,6 +194,33 @@ test('updates route focus, announcements, and metadata for navigation and Back',
     await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', title);
     await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', title);
   }
+});
+
+test('uses result-naming controls for backup settings and legal-page themes', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: 'Open backup settings' })).toBeVisible();
+
+  await page.goto('/privacy');
+  const themeButton = page.getByRole('button', { name: 'Use dark theme' });
+  await expect(themeButton).toBeVisible();
+  await themeButton.click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.getByRole('button', { name: 'Use light theme' })).toBeVisible();
+
+  await page.goto('/terms');
+  await expect(page.getByRole('button', { name: 'Use light theme' })).toBeVisible();
+});
+
+test('names every sample medicine action with its target medicine', async ({ page }) => {
+  await page.goto('/demo');
+  const list = page.getByLabel('Medicines being taken');
+  for (const medicine of ['Lisinopril', 'Metformin ER', 'Vitamin D3']) {
+    await expect(list.getByRole('button', { name: `Edit ${medicine}`, exact: true })).toHaveCount(1);
+    await expect(list.getByRole('button', { name: `Stop and remove ${medicine}`, exact: true })).toHaveCount(1);
+  }
+  await expect(list.getByRole('button', { name: 'Edit', exact: true })).toHaveCount(0);
+  await expect(list.getByRole('button', { name: 'Stop & remove', exact: true })).toHaveCount(0);
 });
 
 test('loads the demo without console errors or horizontal overflow', async ({ page }) => {
@@ -270,7 +297,7 @@ test('@claim:encrypted-backup restores a one-time license and creates an encrypt
   await page.goto('/demo?license=test-license-token');
   await expect(page).toHaveURL('/demo');
   await expect.poll(() => page.evaluate(() => localStorage.getItem('sb_license:medication-handoff-card'))).toBe('test-license-token');
-  await page.getByRole('button', { name: 'Backup & settings' }).click();
+  await page.getByRole('button', { name: 'Open backup settings' }).click();
   await expect(page.getByText('Unlocked', { exact: true })).toBeVisible();
   await page.getByLabel('Backup passphrase').fill('family backup phrase');
   const downloadPromise = page.waitForEvent('download');
@@ -293,7 +320,7 @@ test('keeps encrypted backup locked when a first-time license verification is ra
   }));
   await page.goto('/demo?license=qa-new-license-with-no-verdict');
   await expect.poll(() => page.evaluate(() => localStorage.getItem('sb_license:medication-handoff-card'))).toBe('qa-new-license-with-no-verdict');
-  await page.getByRole('button', { name: 'Backup & settings' }).click();
+  await page.getByRole('button', { name: 'Open backup settings' }).click();
   await expect(page.getByText('Locked', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Download encrypted backup' })).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Unlock encrypted backups — $12' })).toBeVisible();
@@ -307,21 +334,21 @@ test('@claim:demo-isolation loads sample data separately and can return to an em
   await expect(page.getByText('Demo — sample data, nothing is saved to your real card.')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Evelyn Parker' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Lisinopril' })).toBeVisible();
-  await page.getByRole('button', { name: 'Edit', exact: true }).first().click();
+  await page.getByRole('button', { name: 'Edit Lisinopril', exact: true }).first().click();
   await page.getByLabel(/Notes from the label/).fill('Changed only inside the demo.');
   await page.getByRole('button', { name: 'Save change' }).click();
   await expect(page.locator('[data-medication-id="sample-lisinopril"]')).toContainText('Changed only inside the demo.');
   await page.getByRole('button', { name: 'Reset demo' }).click();
   await expect(page.getByRole('heading', { name: 'Evelyn Parker' })).toBeVisible();
   await expect(page.locator('[data-medication-id="sample-lisinopril"]')).not.toContainText('Changed only inside the demo.');
-  await page.getByRole('button', { name: 'Edit', exact: true }).first().click();
+  await page.getByRole('button', { name: 'Edit Lisinopril', exact: true }).first().click();
   await page.getByLabel(/Notes from the label/).fill('This must be discarded on exit.');
   await page.getByRole('button', { name: 'Save change' }).click();
   await page.getByRole('link', { name: 'Start for real' }).click();
   await expect(page.getByLabel(/Person’s name/)).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Evelyn Parker' })).not.toBeVisible();
   await page.goto('/demo');
-  await page.getByRole('button', { name: 'Edit', exact: true }).first().click();
+  await page.getByRole('button', { name: 'Edit Lisinopril', exact: true }).first().click();
   await expect(page.getByLabel(/Notes from the label/)).toHaveValue('Take as listed on the pharmacy label.');
 });
 
@@ -330,7 +357,7 @@ test('@claim:local-record keeps demo health data off the network', async ({ page
   page.on('request', (request) => requests.push(request.url()));
   await page.goto('/demo');
   await expect(page.getByRole('heading', { name: 'Evelyn Parker' })).toBeVisible();
-  await page.getByRole('button', { name: 'Edit', exact: true }).first().click();
+  await page.getByRole('button', { name: 'Edit Lisinopril', exact: true }).first().click();
   await page.getByLabel(/Notes from the label/).fill('Reviewed against the pharmacy label.');
   await page.getByRole('button', { name: 'Save change' }).click();
   expect(requests.every((url) => new URL(url).origin === 'http://127.0.0.1:4173')).toBe(true);
@@ -350,7 +377,7 @@ test('@claim:offline-reload reloads the demo after the first visit without a net
 
 test('@claim:json-backup downloads and restores a plain JSON backup from the demo', async ({ page }) => {
   await page.goto('/demo');
-  await page.getByRole('button', { name: 'Backup & settings' }).click();
+  await page.getByRole('button', { name: 'Open backup settings' }).click();
   const downloadPromise = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Download JSON' }).click();
   const download = await downloadPromise;
@@ -373,13 +400,13 @@ test('@claim:full-history-backup includes history beyond the 20 visible entries 
   testInfo.setTimeout(60_000);
   await page.goto('/demo');
   for (let index = 1; index <= 21; index += 1) {
-    await page.getByRole('button', { name: 'Edit', exact: true }).first().click();
+    await page.getByRole('button', { name: 'Edit Lisinopril', exact: true }).first().click();
     await page.getByLabel(/Notes from the label/).fill(`Checked update ${index}.`);
     await page.getByRole('button', { name: 'Save change' }).click();
     await expect(page.getByRole('dialog', { name: 'Edit medicine' })).toBeHidden();
   }
   await expect(page.getByText('The 20 latest entries are shown. All history is included in backups.')).toBeVisible();
-  await page.getByRole('button', { name: 'Backup & settings' }).click();
+  await page.getByRole('button', { name: 'Open backup settings' }).click();
   const downloadPromise = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Download JSON' }).click();
   const download = await downloadPromise;
@@ -404,7 +431,7 @@ test('@claim:print-card creates a one-page PDF with the current demo list', asyn
 
 test('@claim:dialog-keyboard keeps Tab focus inside an open medicine dialog', async ({ page }) => {
   await page.goto('/demo');
-  await page.getByRole('button', { name: 'Edit', exact: true }).first().click();
+  await page.getByRole('button', { name: 'Edit Lisinopril', exact: true }).first().click();
   const dialog = page.getByRole('dialog', { name: 'Edit medicine' });
   await expect(dialog).toBeVisible();
   for (let index = 0; index < 12; index += 1) {
@@ -417,7 +444,7 @@ test('@claim:dialog-keyboard keeps Tab focus inside an open medicine dialog', as
 
 test('rejects malformed and invalid JSON backups without changing saved data', async ({ page }) => {
   await page.goto('/demo');
-  await page.getByRole('button', { name: 'Backup & settings' }).click();
+  await page.getByRole('button', { name: 'Open backup settings' }).click();
   await page.locator('#import-file').setInputFiles({
     name: 'malformed.json', mimeType: 'application/json',
     buffer: Buffer.from(JSON.stringify({
@@ -429,7 +456,7 @@ test('rejects malformed and invalid JSON backups without changing saved data', a
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Evelyn Parker' })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Backup & settings' }).click();
+  await page.getByRole('button', { name: 'Open backup settings' }).click();
   await page.locator('#import-file').setInputFiles({ name: 'broken.json', mimeType: 'application/json', buffer: Buffer.from('not valid json') });
   await expect(page.getByRole('status')).toContainText('not readable JSON');
   await expect(page.getByRole('status')).toContainText('Choose a Medication Handoff Card');
@@ -438,7 +465,7 @@ test('rejects malformed and invalid JSON backups without changing saved data', a
 test('shows keyboard focus on restore and gives every reported 390px link a 44px touch target', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/demo');
-  await page.getByRole('button', { name: 'Backup & settings' }).click();
+  await page.getByRole('button', { name: 'Open backup settings' }).click();
   await page.locator('#import-file').focus();
   const restoreStyle = await page.locator('.file-button').evaluate((element) => {
     const style = getComputedStyle(element);
@@ -465,7 +492,7 @@ test('shows keyboard focus on restore and gives every reported 390px link a 44px
 test('wraps maximum-length card values on a 390px screen', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/demo');
-  await page.getByRole('button', { name: 'Edit', exact: true }).first().click();
+  await page.getByRole('button', { name: 'Edit Lisinopril', exact: true }).first().click();
   await page.getByLabel(/Medicine name/).fill('M'.repeat(120));
   await page.getByLabel(/Dose or strength/).fill('D'.repeat(80));
   await page.getByLabel(/When taken/).fill('T'.repeat(120));
@@ -479,11 +506,11 @@ test('@claim:adaptive-interface supports dark, reduced-motion, and 390px layouts
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/demo');
-  await page.getByRole('button', { name: 'Backup & settings' }).click();
-  await page.getByRole('button', { name: 'Change light or dark theme' }).click();
+  await page.getByRole('button', { name: 'Open backup settings' }).click();
+  await page.getByRole('button', { name: /Use (dark|light) theme/ }).click();
   expect(await page.evaluate(() => document.documentElement.dataset.theme)).toMatch(/light|dark/);
   await page.getByRole('button', { name: 'Close settings' }).click();
-  const duration = await page.getByRole('button', { name: 'Edit', exact: true }).first().evaluate((element) => getComputedStyle(element).transitionDuration);
+  const duration = await page.getByRole('button', { name: 'Edit Lisinopril', exact: true }).first().evaluate((element) => getComputedStyle(element).transitionDuration);
   expect(duration.split(',').every((value) => parseFloat(value) <= 0.00001)).toBe(true);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
@@ -500,7 +527,7 @@ test('@claim:checkout-available opens the live $12 Sociobot checkout', async ({ 
 test('@claim:core-features-free keeps the card, print view, and JSON backup available without a license', async ({ page }) => {
   await page.goto('/demo');
   await expect(page.getByRole('button', { name: 'Print / PDF' })).toBeEnabled();
-  await page.getByRole('button', { name: 'Backup & settings' }).click();
+  await page.getByRole('button', { name: 'Open backup settings' }).click();
   const downloadPromise = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Download JSON' }).click();
   await downloadPromise;
@@ -511,7 +538,7 @@ test('@claim:core-features-free keeps the card, print view, and JSON backup avai
 test('@claim:non-clinical-scope presents a record-only medication workflow', async ({ page }) => {
   await page.goto('/demo');
   await expect(page.getByText('No interaction checks or dose recommendations.')).toBeVisible();
-  await page.getByRole('button', { name: 'Edit', exact: true }).first().click();
+  await page.getByRole('button', { name: 'Edit Lisinopril', exact: true }).first().click();
   await expect(page.getByLabel('Medicine name')).toBeVisible();
   await expect(page.getByLabel('Dose or strength')).toBeVisible();
   await expect(page.getByLabel('When taken')).toBeVisible();
@@ -526,7 +553,7 @@ test('@claim:no-account-or-cloud-copy keeps a demo edit local and offers no acco
   const requests: string[] = [];
   page.on('request', (request) => requests.push(request.url()));
   await page.goto('/demo');
-  await page.getByRole('button', { name: 'Edit', exact: true }).first().click();
+  await page.getByRole('button', { name: 'Edit Lisinopril', exact: true }).first().click();
   await page.getByLabel(/Notes from the label/).fill('Reviewed on this device.');
   await page.getByRole('button', { name: 'Save change' }).click();
   expect(requests.every((url) => new URL(url).origin === 'http://127.0.0.1:4173')).toBe(true);
@@ -536,7 +563,7 @@ test('@claim:no-account-or-cloud-copy keeps a demo edit local and offers no acco
 
 test('@claim:plain-json-readable downloads backup text with the sample owner and medicine', async ({ page }) => {
   await page.goto('/demo');
-  await page.getByRole('button', { name: 'Backup & settings' }).click();
+  await page.getByRole('button', { name: 'Open backup settings' }).click();
   const downloadPromise = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Download JSON' }).click();
   const download = await downloadPromise;
@@ -549,6 +576,7 @@ test('@claim:plain-json-readable downloads backup text with the sample owner and
 
 test('shows required landing sections and product identity metadata', async ({ page }) => {
   await page.goto('/');
+  await expect(page.getByRole('button', { name: 'Open backup settings' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'How it works' })).toBeVisible();
   await expect(page.locator('.how-it-works li')).toHaveCount(3);
   await expect(page.getByRole('heading', { name: 'Protect backups with a passphrase' })).toBeVisible();
