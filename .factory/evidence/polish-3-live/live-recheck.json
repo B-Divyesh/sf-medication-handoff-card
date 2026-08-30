@@ -1,0 +1,82 @@
+{
+  "checkedAt": "2026-08-30T01:13:32.633Z",
+  "origin": "https://medication-handoff-card.sociobot.in",
+  "candidate": "955b20f271b409aed7e3b43cda187ea08b830bd6",
+  "failures": [],
+  "results": {
+    "cold-home-first-screen": {
+      "x": 16,
+      "y": 489.734375,
+      "width": 243.671875,
+      "height": 46
+    },
+    "first-screen-settings-copy": true,
+    "home-no-horizontal-overflow": true,
+    "home-title": "Medication Handoff Card — share a clear medicine list",
+    "one-click-demo-url": "https://medication-handoff-card.sociobot.in/?demo=1",
+    "demo-banner": true,
+    "demo-reset": true,
+    "demo-start-real": true,
+    "mobile-sample-above-fold": {
+      "x": 16,
+      "y": 406.171875,
+      "width": 358,
+      "height": 127.765625
+    },
+    "edit-name-Lisinopril": true,
+    "stop-name-Lisinopril": true,
+    "edit-name-Metformin ER": true,
+    "stop-name-Metformin ER": true,
+    "edit-name-Vitamin D3": true,
+    "stop-name-Vitamin D3": true,
+    "no-generic-row-edit-name": true,
+    "no-generic-row-stop-name": true,
+    "demo-edit-visible": true,
+    "demo-reset-restores-sample": true,
+    "privacy-theme-result-label": true,
+    "theme-result": true,
+    "theme-next-label": true,
+    "privacy-route-focus": true,
+    "back-route-focus": true,
+    "metadata-/demo": {
+      "title": "Demo — Medication Handoff Card",
+      "canonical": "https://medication-handoff-card.sociobot.in/demo"
+    },
+    "metadata-/privacy": {
+      "title": "Privacy — Medication Handoff Card",
+      "canonical": "https://medication-handoff-card.sociobot.in/privacy"
+    },
+    "metadata-/terms": {
+      "title": "Terms — Medication Handoff Card",
+      "canonical": "https://medication-handoff-card.sociobot.in/terms"
+    },
+    "real-http-404": 404,
+    "404-metadata": true,
+    "404-shell": true,
+    "404-legal-links": true,
+    "axe-/": [],
+    "axe-/demo": [],
+    "axe-/privacy": [],
+    "axe-/terms": [],
+    "axe-/polish-3-not-found": [],
+    "desktop-sample-above-fold": {
+      "x": 772.734375,
+      "y": 186,
+      "width": 517.265625,
+      "height": 137.21875
+    },
+    "desktop-settings-copy": true,
+    "same-origin-demo-requests": [
+      "https://medication-handoff-card.sociobot.in"
+    ],
+    "console-errors": [],
+    "page-errors": []
+  },
+  "axe": {
+    "/": [],
+    "/demo": [],
+    "/privacy": [],
+    "/terms": [],
+    "/polish-3-not-found": []
+  }
+}

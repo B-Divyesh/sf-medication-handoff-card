@@ -1,0 +1,14 @@
+{
+  "url": "https://medication-handoff-card.sociobot.in/",
+  "loadMs": 864,
+  "errors": [],
+  "a11y": {
+    "title": "Medication Handoff Card — share a clear medicine list",
+    "lang": "en",
+    "h1": 1,
+    "main": true,
+    "imgsMissingAlt": 0,
+    "buttonsUnlabeled": 0,
+    "textLength": 1895
+  }
+}
